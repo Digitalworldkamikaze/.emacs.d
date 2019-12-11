@@ -16,12 +16,14 @@
 (setq save-place-file (expand-file-name ".places" user-emacs-directory))
 
 ;; Package archives
-(setq package-archves
-      (append (eval (car (get 'package-archives 'standard-value)))
-              '(("org" . "https://orgmode.org/elpa/")
-                ("melpa" . "https://melpa.org/packages/")
-                ("elpa" . "https://elpa.gnu.org/packages")
-(package-initialize))))
+(defvar gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+
+(require 'package)
+
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+                         ("melpa" . "https://melpa.org/packages/")
+                         ("org" . "https://orgmode.org/elpa/")))
+
 
 ;; Setting-up global keys
 (global-set-key (kbd "M-o") 'other-window)
