@@ -1,6 +1,11 @@
 ;; package.el stuff
 (package-initialize)			
 
+;; use-package
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
 ;; Those little guys in the end of a buffer
 (setq-default indicate-empty-lines t)
 
@@ -11,7 +16,13 @@
 (setq inhibit-startup-message t)
 
 ;; Load theme
-(load-theme 'doom-city-lights t)
+(use-package doom-themes
+  :ensure t
+  :config
+  (load-theme 'doom-city-lights)
+  (set-face-attribute 'mode-line nil
+                      :background "#1D252C"
+                      :height 130))
 
 ;; Package archives
 (defvar gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
@@ -26,11 +37,6 @@
 (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
 (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
 
-;; use-package
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
-
 ;; Trying packages
 (use-package try
              :ensure t)
@@ -43,7 +49,8 @@
 ;; Vim-mode for everything
 (use-package evil
   :ensure t
-  :config (evil-mode))
+  :config (evil-mode t)
+  (global-undo-tree-mode -1))
 
 ;; y or n instead of 'yes' or 'no'
 (fset 'yes-or-no-p 'y-or-n-p)
@@ -74,7 +81,7 @@
  '(indent-tabs-mode nil)
  '(package-selected-packages
    (quote
-    (org-bullets which-key try doom-themes minimap gnu-elpa-keyring-update pdf-tools zerodark-theme solarized-theme nord-theme evil helm use-package)))
+    (counsel swiper doom-modeline org-bullets which-key try doom-themes minimap pdf-tools zerodark-theme solarized-theme nord-theme evil helm use-package)))
  '(sentence-end-double-space nil)
  '(tab-width 4)
  '(winner-mode t))
@@ -85,9 +92,38 @@
  ;; If there is more than one, they won't work right.
  '(default ((t (:inherit nil :stipple nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "PfEd" :family "Iosevka")))))
 
-;; Cool autocompletion with helm
-(require 'helm)
+;; Cool search with swiper
+(use-package counsel
+  :ensure t)
 
+(use-package swiper
+  :ensure t
+  :config
+  (progn
+    (ivy-mode t)
+    (setq ivy-use-virtual-buffers t)
+    (setq enable-recursive-minibuffers t)
+    (global-set-key "\C-s" 'swiper)
+    (global-set-key (kbd "C-c C-r") 'ivy-resume)
+    (global-set-key (kbd "<f6>") 'ivy-resume)
+    (global-set-key (kbd "M-x") 'counsel-M-x)
+    (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+    (global-set-key (kbd "<f1> f") 'counsel-describe-function)
+    (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+    (global-set-key (kbd "<f1> l") 'counsel-find-library)
+    (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+    (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+    (global-set-key (kbd "C-c g") 'counsel-git)
+    (global-set-key (kbd "C-c j") 'counsel-git-grep)
+    (global-set-key (kbd "C-c k") 'counsel-ag)
+    (global-set-key (kbd "C-x l") 'counsel-locate)
+    (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+    (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)))
+
+
+;; Cool autocompletion with helm
+(use-package helm
+  :ensure t)
 ;; Cool autocompletion with IDO 
 (ido-mode 1)
 (setq ido-everywhere t)
@@ -117,7 +153,7 @@
              buffer-file-name))))
 
 ;; Dired file-manager functions
-(require 'dired-x)
+(require 'dired)
 
 ;; Org-mode functions
 ;; Bullets
@@ -135,3 +171,7 @@
       '(("t" "todo" entry (file+headline "/Users/bjm/todo.org" "Tasks")
          "* TODO [#A] %?")))
 
+
+;; Viewing PDF's and other docs in Emacs
+(use-package pdf-tools
+  :ensure t)
