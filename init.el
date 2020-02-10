@@ -1,11 +1,6 @@
 ;; package.el stuff
 (package-initialize)			
 
-;; use-package
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
-
 ;; Those little guys in the end of a buffer
 (setq-default indicate-empty-lines t)
 
@@ -14,6 +9,20 @@
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 (setq inhibit-startup-message t)
+
+;; Package archives
+(defvar gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+
+(require 'package)
+
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+                         ("melpa" . "https://melpa.org/packages/")
+                         ("org" . "https://orgmode.org/elpa/")))
+
+;; use-package
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
 
 ;; Load theme
 (use-package doom-themes
@@ -24,14 +33,14 @@
                       :background "#1D252C"
                       :height 130))
 
-;; Package archives
-(defvar gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
-
-(require 'package)
-
-(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
-                         ("melpa" . "https://melpa.org/packages/")
-                         ("org" . "https://orgmode.org/elpa/")))
+;; Set faces
+(use-package faces
+  :ensure nil
+  :config
+  (set-face-attribute 'default
+                      nil
+                      :family "Iosevka"
+                      :height 130))
 
 ;; Set a backup directory
 (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
@@ -63,7 +72,7 @@
 ;; Apropos options
 (setq apropos-sort-by-scores t)	
 
-;; Custom-set variables and faces
+;; Custom-set variables
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -74,7 +83,7 @@
  '(bookmark-default-file "~/.emacs.d/bookmarks")
  '(custom-safe-themes
    (quote
-    ("51956e440cec75ba7e4cff6c79f4f8c884a50b220e78e5e05145386f5b381f7b" "0809c08440b51a39c77ec5529f89af83ab256a9d48107b088d40098ce322c7d8" "7c4cfa4eb784539d6e09ecc118428cd8125d6aa3053d8e8413f31a7293d43169" "e074be1c799b509f52870ee596a5977b519f6d269455b84ed998666cf6fc802a" "ca849ae0c889eb918785cdc75452b1e11a00848a5128a95a23872e0119ccc8f4" "7f791f743870983b9bb90c8285e1e0ba1bf1ea6e9c9a02c60335899ba20f3c94" "1068ae7acf99967cc322831589497fee6fb430490147ca12ca7dd3e38d9b552a" "82358261c32ebedfee2ca0f87299f74008a2e5ba5c502bde7aaa15db20ee3731" default)))
+    ("777a3a89c0b7436e37f6fa8f350cbbff80bcc1255f0c16ab7c1e82041b06fccd" "a339f231e63aab2a17740e5b3965469e8c0b85eccdfb1f9dbd58a30bdad8562b" "d71aabbbd692b54b6263bfe016607f93553ea214bc1435d17de98894a5c3a086" "51956e440cec75ba7e4cff6c79f4f8c884a50b220e78e5e05145386f5b381f7b" "0809c08440b51a39c77ec5529f89af83ab256a9d48107b088d40098ce322c7d8" "7c4cfa4eb784539d6e09ecc118428cd8125d6aa3053d8e8413f31a7293d43169" "e074be1c799b509f52870ee596a5977b519f6d269455b84ed998666cf6fc802a" "ca849ae0c889eb918785cdc75452b1e11a00848a5128a95a23872e0119ccc8f4" "7f791f743870983b9bb90c8285e1e0ba1bf1ea6e9c9a02c60335899ba20f3c94" "1068ae7acf99967cc322831589497fee6fb430490147ca12ca7dd3e38d9b552a" "82358261c32ebedfee2ca0f87299f74008a2e5ba5c502bde7aaa15db20ee3731" default)))
  '(display-line-numbers (quote relative))
  '(global-subword-mode t)
  '(ido-enable-flex-matching t)
@@ -85,12 +94,6 @@
  '(sentence-end-double-space nil)
  '(tab-width 4)
  '(winner-mode t))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "PfEd" :family "Iosevka")))))
 
 ;; Cool search with swiper
 (use-package counsel
@@ -175,3 +178,9 @@
 ;; Viewing PDF's and other docs in Emacs
 (use-package pdf-tools
   :ensure t)
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(default ((t (:inherit nil :stipple nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "PfEd" :family "Iosevka")))))
