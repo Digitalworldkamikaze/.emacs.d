@@ -1,3 +1,4 @@
+#+STARTUP: overview
 * Startup
 ** Start the server
 #+BEGIN_SRC emacs-lisp
@@ -5,21 +6,25 @@
 #+END_SRC
 
 ** Set a backup directory
-#+BEGIN_SRC 
+#+BEGIN_SRC emacs-lisp 
 (setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
 (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
 #+END_SRC
 
 * Interface
 ** Set theme
-#+BEGIN_SRC
+#+BEGIN_SRC emacs-lisp
 (use-package doom-themes
   :ensure t
   :config (load-theme 'doom-Iosvkem t))
 #+END_SRC
+
+#+RESULTS:
+: t
+
 ** Some tweaks
 *** Remove the GUI shit
-#+BEGIN_SRC 
+#+BEGIN_SRC emacs-lisp 
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
@@ -27,13 +32,16 @@
 #+END_SRC
 
 *** Those little guys till' the end of the buffer
-#+BEGIN_SRC 
+#+BEGIN_SRC emacs-lisp
 (setq-default indicate-empty-lines t)
 #+END_SRC
 
 *** 'y' or 'n' instead of 'yes' and 'no'
+#+BEGIN_SRC emacs-lisp
+(fset 'yes-or-no-p 'y-or-n-p)
+#+END_SRC
 ** Faces
-#+BEGIN_SRC 
+#+BEGIN_SRC emacs-lisp 
 (use-package faces
   :ensure nil
   :config
@@ -44,41 +52,40 @@
 
 * Keyboard and shortcuts
 ** Which key?
-#+BEGIN_SRC 
+#+BEGIN_SRC emacs-lisp 
 (use-package which-key
   :ensure t
   :config (which-key-mode))
 #+END_SRC
 
 ** Vim-mode for (almost) everything
-#+BEGIN_SRC
+#+BEGIN_SRC emacs-lisp
 (use-package evil
   :ensure t
   :config (evil-mode t)
   (global-undo-tree-mode -1))
-#+END_SRC
+#+END_SRC emacs-lisp
 
 ** Setting up global keys
-#+BEGIN_SRC 
+#+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "M-o") 'other-window)
 (global-set-key (kbd "M-i") 'imenu)
 (global-set-key [remap dabbrev-expand] 'hippie-expand)
-#+END_SRC
-
+#+END_SRC 
 * Trying packages with try
-#+BEGIN_SRC 
+#+BEGIN_SRC emacs-lisp 
 (use-package try
              :ensure t)
 #+END_SRC
 
 * Search
 ** Apropos options
-#+BEGIN_SRC 
+#+BEGIN_SRC emacs-lisp 
 (setq apropos-sort-by-scores t)	
 #+END_SRC
 
 ** Cool search with swiper
-#+BEGIN_SRC 
+#+BEGIN_SRC emacs-lisp 
 (use-package counsel
   :ensure t)
 
@@ -109,7 +116,7 @@
 
 * Autocompletion
 ** Cool autocompletion with auto-complete
-#+BEGIN_SRC 
+#+BEGIN_SRC emacs-lisp 
 (use-package auto-complete
   :ensure t
   :init
@@ -118,19 +125,19 @@
     (global-auto-complete-mode)))
 #+END_SRC
 ** Cool autocompletion with helm
-#+BEGIN_SRC 
+#+BEGIN_SRC emacs-lisp 
 (use-package helm
   :ensure t)
 #+END_SRC
 
 * Point-and-mark stuff
-#+BEGIN_SRC 
+#+BEGIN_SRC emacs-lisp 
 (delete-selection-mode)
 #+END_SRC
 
 * TRAMP functions
 ** Use TRAMP to 'sudo' the current buffer
-#+BEGIN_SRC 
+#+BEGIN_SRC emacs-lisp 
 (defun sudo ()
   (interactive)
   (when buffer-file-name
@@ -140,32 +147,32 @@
 #+END_SRC
 
 * Dired file-manager functions
-#+BEGIN_SRC 
+#+BEGIN_SRC emacs-lisp 
 (require 'dired)
 #+END_SRC
 
 * Org-mode functions
 ** Installing org
-#+BEGIN_SRC 
+#+BEGIN_SRC emacs-lisp 
 (use-package org
   :ensure t)
 #+END_SRC
 
 ** Bullets
-#+BEGIN_SRC 
+#+BEGIN_SRC emacs-lisp 
 (use-package org-bullets
   :ensure t)
 #+END_SRC
 
 ** TODO's 
 *** Set colours for priorities
-#+BEGIN_SRC
+#+BEGIN_SRC emacs-lisp
 (setq org-priority-faces '((?A . (:foreground "#F0DFAF" :weight bold))
                            (?B . (:foreground "LightSteelBlue"))
                            (?C . (:foreground "OliveDrab"))))
 #+END_SRC
 *** Capture todo items using C-c c t
-#+BEGIN_SRC 
+#+BEGIN_SRC emacs-lisp 
 (define-key global-map (kbd "C-c c") 'org-capture)
 (setq org-capture-templates
       '(("t" "todo" entry (file+headline "/Users/bjm/todo.org" "Tasks")
@@ -174,13 +181,13 @@
 
 * Viewing docs in Emacs
 ** PDF-Tools for viewing Pointless Document Format docs
-#+BEGIN_SRC 
+#+BEGIN_SRC emacs-lisp 
 (use-package pdf-tools
   :ensure t)
 #+END_SRC
 
 * Custom-set variables (will do something with 'em later)
-#+BEGIN_SRC 
+#+BEGIN_SRC emacs-lisp 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
