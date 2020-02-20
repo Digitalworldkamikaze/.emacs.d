@@ -1,16 +1,6 @@
-;; package.el stuff
 (package-initialize)			
 
-;; Those little guys in the end of a buffer
-(setq-default indicate-empty-lines t)
-
-;; Remove some GUI shit
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
-(setq inhibit-startup-message t)
-
-;; Package archives
+;; package archives
 (defvar gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 
 (require 'package)
@@ -19,168 +9,14 @@
                          ("melpa" . "https://melpa.org/packages/")
                          ("org" . "https://orgmode.org/elpa/")))
 
-;; use-package
+;; bootstrapping use-package
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
 
-;; Load theme
-(use-package doom-themes
-  :ensure t
-  :config
-  (load-theme 'doom-city-lights)
-  (set-face-attribute 'mode-line nil
-                      :background "#1D252C"
-                      :height 130))
 
-;; Set faces
-(use-package faces
-  :ensure nil
-  :config
-  (set-face-attribute 'default
-                      nil
-                      :family "Iosevka"
-                      :height 130))
+;; starting the server
+(server-start)
 
-;; Set a backup directory
-(setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
-(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
-
-;; Trying packages
-(use-package try
-             :ensure t)
-
-;; Which key?
-(use-package which-key
-  :ensure t
-  :config (which-key-mode))
-
-;; Vim-mode for everything
-(use-package evil
-  :ensure t
-  :config (evil-mode t)
-  (global-undo-tree-mode -1))
-
-;; y or n instead of 'yes' or 'no'
-(fset 'yes-or-no-p 'y-or-n-p)
-
-;; Setting-up global keys
-(global-set-key (kbd "M-o") 'other-window)
-(global-set-key (kbd "M-i") 'imenu)
-(global-set-key [remap dabbrev-expand] 'hippie-expand)
-
-;; Apropos options
-(setq apropos-sort-by-scores t)	
-
-;; Custom-set variables
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(ansi-color-names-vector
-   ["#2d3743" "#ff4242" "#74af68" "#dbdb95" "#34cae2" "#008b8b" "#00ede1" "#e1e1e0"])
- '(bookmark-default-file "~/.emacs.d/bookmarks")
- '(custom-safe-themes
-   (quote
-    ("777a3a89c0b7436e37f6fa8f350cbbff80bcc1255f0c16ab7c1e82041b06fccd" "a339f231e63aab2a17740e5b3965469e8c0b85eccdfb1f9dbd58a30bdad8562b" "d71aabbbd692b54b6263bfe016607f93553ea214bc1435d17de98894a5c3a086" "51956e440cec75ba7e4cff6c79f4f8c884a50b220e78e5e05145386f5b381f7b" "0809c08440b51a39c77ec5529f89af83ab256a9d48107b088d40098ce322c7d8" "7c4cfa4eb784539d6e09ecc118428cd8125d6aa3053d8e8413f31a7293d43169" "e074be1c799b509f52870ee596a5977b519f6d269455b84ed998666cf6fc802a" "ca849ae0c889eb918785cdc75452b1e11a00848a5128a95a23872e0119ccc8f4" "7f791f743870983b9bb90c8285e1e0ba1bf1ea6e9c9a02c60335899ba20f3c94" "1068ae7acf99967cc322831589497fee6fb430490147ca12ca7dd3e38d9b552a" "82358261c32ebedfee2ca0f87299f74008a2e5ba5c502bde7aaa15db20ee3731" default)))
- '(display-line-numbers (quote relative))
- '(global-subword-mode t)
- '(ido-enable-flex-matching t)
- '(indent-tabs-mode nil)
- '(package-selected-packages
-   (quote
-    (counsel swiper doom-modeline org-bullets which-key try doom-themes minimap pdf-tools zerodark-theme solarized-theme nord-theme evil helm use-package)))
- '(sentence-end-double-space nil)
- '(tab-width 4)
- '(winner-mode t))
-
-;; Cool search with swiper
-(use-package counsel
-  :ensure t)
-
-(use-package swiper
-  :ensure t
-  :config
-  (progn
-    (ivy-mode t)
-    (setq ivy-use-virtual-buffers t)
-    (setq enable-recursive-minibuffers t)
-    (global-set-key "\C-s" 'swiper)
-    (global-set-key (kbd "C-c C-r") 'ivy-resume)
-    (global-set-key (kbd "<f6>") 'ivy-resume)
-    (global-set-key (kbd "M-x") 'counsel-M-x)
-    (global-set-key (kbd "C-x C-f") 'counsel-find-file)
-    (global-set-key (kbd "<f1> f") 'counsel-describe-function)
-    (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
-    (global-set-key (kbd "<f1> l") 'counsel-find-library)
-    (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
-    (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
-    (global-set-key (kbd "C-c g") 'counsel-git)
-    (global-set-key (kbd "C-c j") 'counsel-git-grep)
-    (global-set-key (kbd "C-c k") 'counsel-ag)
-    (global-set-key (kbd "C-x l") 'counsel-locate)
-    (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
-    (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)))
-
-
-;; Cool autocompletion with helm
-(use-package helm
-  :ensure t)
-;; Cool autocompletion with IDO 
-(ido-mode 1)
-(setq ido-everywhere t)
-(setq ido-enable-flex-matching t)
-
-(add-hook 'ido-setup-hook
- (lambda ()
-   ;; Go straight home
-   (define-key ido-file-completion-map
-     (kbd "~")
-     (lambda ()
-       (interactive)
-       (if (looking-back "/")
-           (insert "~/")
-         (call-interactively 'self-insert-command))))))
-
-;; Point-and-mark stuff
-(delete-selection-mode)
-
-;; TRAMP functions
-(defun sudo ()
-  "Use TRAMP to 'sudo' the current buffer"
-  (interactive)
-  (when buffer-file-name
-    (find-alternate-file
-     (concat "/sudo:root@localhost:"
-             buffer-file-name))))
-
-;; Dired file-manager functions
-(require 'dired)
-
-;; Org-mode functions
-;; Bullets
-(use-package org-bullets
-  :ensure t)
-
-;; Set colours for priorities
-(setq org-priority-faces '((?A . (:foreground "#F0DFAF" :weight bold))
-                           (?B . (:foreground "LightSteelBlue"))
-                           (?C . (:foreground "OliveDrab"))))
-
-;; Capture todo items using C-c c t
-(define-key global-map (kbd "C-c c") 'org-capture)
-(setq org-capture-templates
-      '(("t" "todo" entry (file+headline "/Users/bjm/todo.org" "Tasks")
-         "* TODO [#A] %?")))
-
-
-;; Viewing PDF's and other docs in Emacs
-(use-package pdf-tools
-  :ensure t)
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "PfEd" :family "Iosevka")))))
+;; grabbing config from the org file
+(org-babel-load-file (expand-file-name "config.org"))

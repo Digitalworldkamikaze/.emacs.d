@@ -1,0 +1,205 @@
+* Startup
+** Start the server
+#+BEGIN_SRC emacs-lisp
+(server-start)
+#+END_SRC
+
+** Set a backup directory
+#+BEGIN_SRC 
+(setq backup-directory-alist '(("." . "~/.emacs.d/backups")))
+(setq auto-save-file-name-transforms '((".*" "~/.emacs.d/auto-save-list/" t)))
+#+END_SRC
+
+* Interface
+** Set theme
+#+BEGIN_SRC
+(use-package doom-themes
+  :ensure t
+  :config (load-theme 'doom-Iosvkem t))
+#+END_SRC
+** Some tweaks
+*** Remove the GUI shit
+#+BEGIN_SRC 
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+(setq inhibit-startup-message t)
+#+END_SRC
+
+*** Those little guys till' the end of the buffer
+#+BEGIN_SRC 
+(setq-default indicate-empty-lines t)
+#+END_SRC
+
+*** 'y' or 'n' instead of 'yes' and 'no'
+** Faces
+#+BEGIN_SRC 
+(use-package faces
+  :ensure nil
+  :config
+  (set-face-attribute 'default
+                      nil
+                      :family "Cozette"))
+#+END_SRC
+
+* Keyboard and shortcuts
+** Which key?
+#+BEGIN_SRC 
+(use-package which-key
+  :ensure t
+  :config (which-key-mode))
+#+END_SRC
+
+** Vim-mode for (almost) everything
+#+BEGIN_SRC
+(use-package evil
+  :ensure t
+  :config (evil-mode t)
+  (global-undo-tree-mode -1))
+#+END_SRC
+
+** Setting up global keys
+#+BEGIN_SRC 
+(global-set-key (kbd "M-o") 'other-window)
+(global-set-key (kbd "M-i") 'imenu)
+(global-set-key [remap dabbrev-expand] 'hippie-expand)
+#+END_SRC
+
+* Trying packages with try
+#+BEGIN_SRC 
+(use-package try
+             :ensure t)
+#+END_SRC
+
+* Search
+** Apropos options
+#+BEGIN_SRC 
+(setq apropos-sort-by-scores t)	
+#+END_SRC
+
+** Cool search with swiper
+#+BEGIN_SRC 
+(use-package counsel
+  :ensure t)
+
+(use-package swiper
+  :ensure t
+  :config
+  (progn
+    (ivy-mode t)
+    (setq ivy-use-virtual-buffers t)
+    (setq enable-recursive-minibuffers t)
+    (global-set-key "\C-s" 'swiper)
+    (global-set-key (kbd "C-c C-r") 'ivy-resume)
+    (global-set-key (kbd "<f6>") 'ivy-resume)
+    (global-set-key (kbd "M-x") 'counsel-M-x)
+    (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+    (global-set-key (kbd "<f1> f") 'counsel-describe-function)
+    (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+    (global-set-key (kbd "<f1> l") 'counsel-find-library)
+    (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+    (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+    (global-set-key (kbd "C-c g") 'counsel-git)
+    (global-set-key (kbd "C-c j") 'counsel-git-grep)
+    (global-set-key (kbd "C-c k") 'counsel-ag)
+    (global-set-key (kbd "C-x l") 'counsel-locate)
+    (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+    (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)))
+#+END_SRC
+
+* Autocompletion
+** Cool autocompletion with auto-complete
+#+BEGIN_SRC 
+(use-package auto-complete
+  :ensure t
+  :init
+  (progn
+    (ac-config-default)
+    (global-auto-complete-mode)))
+#+END_SRC
+** Cool autocompletion with helm
+#+BEGIN_SRC 
+(use-package helm
+  :ensure t)
+#+END_SRC
+
+* Point-and-mark stuff
+#+BEGIN_SRC 
+(delete-selection-mode)
+#+END_SRC
+
+* TRAMP functions
+** Use TRAMP to 'sudo' the current buffer
+#+BEGIN_SRC 
+(defun sudo ()
+  (interactive)
+  (when buffer-file-name
+    (find-alternate-file
+     (concat "/sudo:root@localhost:"
+             buffer-file-name))))
+#+END_SRC
+
+* Dired file-manager functions
+#+BEGIN_SRC 
+(require 'dired)
+#+END_SRC
+
+* Org-mode functions
+** Installing org
+#+BEGIN_SRC 
+(use-package org
+  :ensure t)
+#+END_SRC
+
+** Bullets
+#+BEGIN_SRC 
+(use-package org-bullets
+  :ensure t)
+#+END_SRC
+
+** TODO's 
+*** Set colours for priorities
+#+BEGIN_SRC
+(setq org-priority-faces '((?A . (:foreground "#F0DFAF" :weight bold))
+                           (?B . (:foreground "LightSteelBlue"))
+                           (?C . (:foreground "OliveDrab"))))
+#+END_SRC
+*** Capture todo items using C-c c t
+#+BEGIN_SRC 
+(define-key global-map (kbd "C-c c") 'org-capture)
+(setq org-capture-templates
+      '(("t" "todo" entry (file+headline "/Users/bjm/todo.org" "Tasks")
+         "* TODO [#A] %?")))
+#+END_SRC
+
+* Viewing docs in Emacs
+** PDF-Tools for viewing Pointless Document Format docs
+#+BEGIN_SRC 
+(use-package pdf-tools
+  :ensure t)
+#+END_SRC
+
+* Custom-set variables (will do something with 'em later)
+#+BEGIN_SRC 
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ansi-color-names-vector
+   ["#2d3743" "#ff4242" "#74af68" "#dbdb95" "#34cae2" "#008b8b" "#00ede1" "#e1e1e0"])
+ '(bookmark-default-file "~/.emacs.d/bookmarks")
+ '(custom-safe-themes
+   (quote
+    ("6bacece4cf10ea7dd5eae5bfc1019888f0cb62059ff905f37b33eec145a6a430" "3577ee091e1d318c49889574a31175970472f6f182a9789f1a3e9e4513641d86" "be9645aaa8c11f76a10bcf36aaf83f54f4587ced1b9b679b55639c87404e2499" "bc836bf29eab22d7e5b4c142d201bcce351806b7c1f94955ccafab8ce5b20208" "1ed5c8b7478d505a358f578c00b58b430dde379b856fbcb60ed8d345fc95594e" "001e4dbbdb8d01bb299c0244c489504d51ef5939ace24049079b377294786f7c" "1c8171893a9a0ce55cb7706766e57707787962e43330d7b0b6b0754ed5283cda" "777a3a89c0b7436e37f6fa8f350cbbff80bcc1255f0c16ab7c1e82041b06fccd" "a339f231e63aab2a17740e5b3965469e8c0b85eccdfb1f9dbd58a30bdad8562b" "d71aabbbd692b54b6263bfe016607f93553ea214bc1435d17de98894a5c3a086" "51956e440cec75ba7e4cff6c79f4f8c884a50b220e78e5e05145386f5b381f7b" "0809c08440b51a39c77ec5529f89af83ab256a9d48107b088d40098ce322c7d8" "7c4cfa4eb784539d6e09ecc118428cd8125d6aa3053d8e8413f31a7293d43169" "e074be1c799b509f52870ee596a5977b519f6d269455b84ed998666cf6fc802a" "ca849ae0c889eb918785cdc75452b1e11a00848a5128a95a23872e0119ccc8f4" "7f791f743870983b9bb90c8285e1e0ba1bf1ea6e9c9a02c60335899ba20f3c94" "1068ae7acf99967cc322831589497fee6fb430490147ca12ca7dd3e38d9b552a" "82358261c32ebedfee2ca0f87299f74008a2e5ba5c502bde7aaa15db20ee3731" default)))
+ '(display-line-numbers (quote relative))
+ '(global-subword-mode t)
+ '(ido-enable-flex-matching t)
+ '(indent-tabs-mode nil)
+ '(package-selected-packages
+   (quote
+    (auto-complete counsel swiper doom-modeline org-bullets which-key try doom-themes minimap pdf-tools zerodark-theme solarized-theme nord-theme evil helm use-package)))
+ '(sentence-end-double-space nil)
+ '(tab-width 4)
+ '(winner-mode t))
+#+END_SRC
