@@ -1,2 +1,400 @@
-* .emacs.d
-My emacs config files.
+#+TITLE: Cool Emacs config.
+#+AUTHOR: Scriptod
+#+STARTUP: overview
+
+* Package Management
+** Package archives
+Repositories of Emacs-lisp packages.
+
+#+BEGIN_SRC emacs-lisp
+(defvar gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
+
+(require 'package)
+
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+                         ("melpa" . "https://melpa.org/packages/")
+                         ("org" . "https://orgmode.org/elpa/")))
+#+END_SRC
+** Use-package
+Bootstrapping use-package - A cool macro that can both speed-up and make tidier your config. 
+
+#+BEGIN_SRC emacs-lisp
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package)
+  (setq use-package-always-ensure t))
+#+END_SRC
+** Quelpa
+For installing packages from sources.
+
+#+BEGIN_SRC emacs-lisp
+(use-package quelpa
+  :ensure t)
+#+END_SRC
+** Try
+Try is a tool for trying packages in Emacs without installing them permanently.
+
+#+BEGIN_SRC emacs-lisp
+(use-package try
+  :ensure t)
+#+END_SRC
+
+* Startup
+** Start the server
+If you don't use Emacs in a server mode then you definitely doing something wrong.
+
+#+BEGIN_SRC emacs-lisp
+(server-start)
+#+END_SRC
+* Interface & Appearence
+** Emacs variables defined in C source code
+#+BEGIN_SRC emacs-lisp 
+(use-package emacs
+  :ensure nil
+  :init
+  (put 'narrow-to-page 'disabled nil)
+  (put 'narrow-to-region 'disabled nil)
+  (put 'downcase-region 'disabled nil)
+  :custom
+  (use-dialog-box nil "Dialogs via minibuffer only.")
+  (tool-bar-mode nil "Disable toolbar.")
+  (menu-bar-mode nil "Disable menubar.")
+  (scroll-bar-mode nil "Disable scrollbar.")
+  (blink-cursor-mode nil "Disable cursor blinking.")
+  (scroll-step 1 "Scroll line by line.")
+  (scroll-margin 4 "Top and bottom scrolling margin.")
+  (inhibit-splash-screen t "Don't show the splash screen.")
+  (indicate-empty-lines t "Visually indicate empty lines.")
+  (indent-tabs-mode nil "Tabs are evil.")
+  (tab-width 4 "Sane default for me."))
+#+END_SRC
+** Simple
+#+BEGIN_SRC emacs-lisp
+(use-package simple
+  :ensure nil
+  :config
+  (defalias 'yes-or-no-p 'y-or-n-p)
+  :custom
+  (line-number-mode t "Show line number in modeline.")
+  (column-number-mode t "Show column number in modeline."))
+#+END_SRC
+** Themes
+#+BEGIN_SRC emacs-lisp
+;(use-package doom-themes
+;  :ensure t
+;  :config
+;  (load-theme 'doom-wilmersdorf t)
+;  (set-face-attribute 'mode-line nil
+;            :background "#282b33")
+;  (set-face-attribute 'mode-line-inactive nil
+;            :background "#282b33"))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package doom-themes
+ :ensure t
+ :config
+ (load-theme 'doom-Iosvkem t))
+#+END_SRC
+** Modeline
+Mood-line is the most minimalistic modeline for Emacs I've ever seen.
+
+#+BEGIN_SRC emacs-lisp
+(use-package mood-line
+  :ensure t
+  :config
+  (mood-line-mode)
+  (set-face-attribute 'mode-line nil
+            :background "#1b1d1e")
+  (set-face-attribute 'mode-line-inactive nil
+            :background "#1b1d1e"))
+#+END_SRC
+** Icons
+#+BEGIN_SRC emacs-lisp
+(use-package all-the-icons
+  :if window-system
+  :ensure t
+  :defer t)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package all-the-icons-dired
+  :if window-system
+  :ensure t
+  :hook
+  (dired-mode . all-the-icons-dired-mode))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package all-the-icons-ivy
+  :if window-system
+  :ensure t
+  :after ivy
+  :custom
+  (all-the-icons-ivy-buffer-commands '() "Don't use for buffers.")
+  :config
+  (unless (file-exists-p "~/.local/share/fonts/all-the-icons.ttf")
+    (all-the-icons-install-fonts t))
+  (all-the-icons-ivy-setup))
+#+END_SRC
+** Dashboard
+A cool dashboard to see every time I load muh Emacs.
+
+#+BEGIN_SRC emacs-lisp
+(use-package dashboard
+  :ensure t
+  :config
+  (dashboard-setup-startup-hook)
+  ;; Set the title
+  (setq dashboard-banner-logo-title "Happy Hacking.")
+  ;; Set the banner
+  (setq dashboard-startup-banner 'logo))
+#+END_SRC
+* Keyboard & Shortcuts
+** Which key?
+A nice little tool to remind you about what keys do you want to press.
+
+#+BEGIN_SRC emacs-lisp
+(use-package which-key
+  :ensure t
+  :config
+  (which-key-mode t))
+#+END_SRC
+** General
+General.el is a cool interface for making key bindings.
+
+#+BEGIN_SRC emacs-lisp
+(use-package general
+  :ensure t)
+#+END_SRC
+** Hydra
+#+BEGIN_SRC emacs-lisp
+(use-package hydra
+  :ensure t)
+#+END_SRC
+** Modal editing
+Modal editing is more efficient and ergonomical way to edit text. The package I use for implementing modal editing to my config is called Modalka.
+
+#+BEGIN_SRC emacs-lisp
+(defun enable-modalka-mode ()
+ (interactive)
+ (modalka-mode t))
+
+(use-package modalka
+  :ensure t
+  :bind
+  ("<escape>" . 'enable-modalka-mode)
+  (:map modalka-mode-map)
+  ("p" . 'modalka-mode)
+  ("j" . 'backward-char)
+  ("u" . 'left-word)
+  ("k" . 'next-line)
+  ("C-k" . 'end-of-buffer)
+  ("i" . 'previous-line)
+  ("C-i" . 'beginning-of-buffer)
+  ("l" . 'forward-char)
+  ("o" . 'right-word)
+  ("h" . 'beginning-of-line)
+  (";" . 'end-of-line)
+  ("y" . 'undo)
+  ("v" . 'set-mark-command)
+  ("c" . 'copy-region-as-kill)
+  :config
+  (defhydra hydra-kill (modalka-mode-map "d")
+    ("j" delete-backward-char "backward-char")
+    ("l" delete-char "char")
+    ("u" backward-kill-word "backward-word")
+    ("o" kill-word "word")
+    ("v" kill-region "region")
+    ("d" kill-line))
+  (defhydra hydra-package (modalka-mode-map "P")
+    ("T" try "try")
+    ("I" package-install "install")
+    ("D" package-delete "delete")
+    ("L" package-list-packages "list-packages"))
+  (defhydra hydra-eval (modalka-mode-map "e")
+    ("D" eval-defun "defun")
+    ("B" eval-buffer "buffer")
+    ("R" eval-region "region")
+    ("S" eval-last-sexp "sexp")
+    ("E" eval-expression "expression"))
+  (setq-default cursor-type '(bar . 1))
+  (setq modalka-cursor-type 'box)
+  (modalka-global-mode t))
+#+END_SRC
+** Autocompletion
+*** Minibuffer completion
+**** Ivy
+#+BEGIN_SRC emacs-lisp
+(use-package ivy
+  :ensure t
+  :config
+  (ivy-mode t))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package ivy-rich
+  :ensure t
+  :config
+  (ivy-rich-mode t))
+#+END_SRC
+
+**** Counsel
+Amx is used by Counsel-M-x
+
+#+BEGIN_SRC emacs-lisp
+(use-package amx 
+  :ensure t 
+  :defer t)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package counsel
+  :ensure t
+  :bind
+  (([remap insert-char] . counsel-unicode-char)
+   ([remap isearch-forward] . counsel-grep-or-swiper))
+  :init
+  (counsel-mode))
+#+END_SRC
+
+**** Swiper
+#+BEGIN_SRC emacs-lisp
+(use-package swiper 
+  :ensure t)
+#+END_SRC
+*** In-buffer completion
+**** Company 
+
+#+BEGIN_SRC emacs-lisp
+(use-package company
+  :ensure t
+  :config
+  (company-mode t))
+#+END_SRC
+** Search
+*** Ag
+Ag is a faster grep.
+
+#+BEGIN_SRC emacs-lisp
+(use-package ag
+  :ensure t)
+#+END_SRC
+*** Isearch
+#+BEGIN_SRC emacs-lisp
+(use-package isearch
+  :ensure nil
+  :bind
+  ("M-f" . 'isearch-forward)
+  ("C-f" . 'isearch-backward))
+#+END_SRC
+** Frame manipulation
+#+BEGIN_SRC emacs-lisp
+(use-package frame
+  :ensure nil
+  :bind
+  ("C-z" . nil)
+  ("C-z C-z" . nil)
+  (:map modalka-mode-map)
+  ("o" . 'other-frame))
+#+END_SRC
+* Help & Manuals
+** Helpful
+Helpful provides better Emacs "help" buffer
+
+#+BEGIN_SRC emacs-lisp
+(use-package helpful
+  :ensure t)
+#+END_SRC
+* Org & Documents
+** Org
+#+BEGIN_SRC emacs-lisp
+(use-package org
+  :ensure nil)
+#+END_SRC
+** PDF-tools
+For viewing Pointless-Document-Format docs in Emacs.
+
+#+BEGIN_SRC emacs-lisp
+(use-package pdf-tools
+  :ensure t)
+#+END_SRC 
+* File management
+** Dired
+Dired is a built-in Emacs file manager.
+
+#+BEGIN_SRC emacs-lisp
+(use-package dired
+  :ensure nil)
+#+END_SRC
+
+Extra dired things
+
+#+BEGIN_SRC emacs-lisp
+(use-package dired-x
+  :ensure nil)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package dired-subtree
+  :ensure t
+  :after dired
+  :bind
+  (:map dired-mode-map
+        ("t" . dired-subtree-toggle)))
+#+END_SRC
+
+Image preview support for dired.
+
+#+BEGIN_SRC emacs-lisp
+(use-package image-dired
+  :ensure nil)
+
+(use-package image-dired+
+  :ensure t
+  :after image-dired)
+#+END_SRC
+
+Hide dotfiles in dired buffers.
+
+#+BEGIN_SRC emacs-lisp
+(use-package dired-hide-dotfiles
+  :ensure t
+  :bind
+  (:map dired-mode-map
+        ("." . dired-hide-dotfiles-mode))
+  :hook
+  (dired-mode . dired-hide-dotfiles-mode))
+#+END_SRC
+** Set a backup directory
+#+BEGIN_SRC emacs-lisp
+(use-package files
+  :ensure nil
+  :custom
+  (require-final-newline t)
+  (delete-old-versions t)
+  (backup-directory-alist
+   `((".*" . ,(expand-file-name (concat user-emacs-directory "autosaves/")))))
+  (auto-save-file-name-transforms
+   `((".*" ,(expand-file-name (concat user-emacs-directory "autosaves/")) t))))
+#+END_SRC
+
+Asynchronous dired
+
+#+BEGIN_SRC emacs-lisp
+(use-package async
+  :ensure t
+  :defer t
+  :init
+  (dired-async-mode t))
+#+END_SRC
+* Custom
+I don't use ~M-x customize~ insterface, so, custom-file is set to /dev/null.
+
+#+BEGIN_SRC emacs-lisp
+(use-package cus-edit
+  :ensure nil
+  :custom
+  (custom-file "/dev/null"))
+#+END_SRC
+
