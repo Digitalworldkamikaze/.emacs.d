@@ -105,9 +105,12 @@ Mood-line is the most minimalistic modeline for Emacs I've ever seen.
   :config
   (mood-line-mode)
   (set-face-attribute 'mode-line nil
-            :background "#1b1d1e")
+            :background "#1b1d1e"
+            :overline t)
   (set-face-attribute 'mode-line-inactive nil
-            :background "#1b1d1e"))
+            :background "#1b1d1e")
+  :custom (overline-margin '15)
+  :custom (underline-margin '10))
 #+END_SRC
 ** Icons
 #+BEGIN_SRC emacs-lisp
@@ -168,59 +171,117 @@ General.el is a cool interface for making key bindings.
   :ensure t)
 #+END_SRC
 ** Hydra
+"Make bindings that stick around"
+
 #+BEGIN_SRC emacs-lisp
 (use-package hydra
+  :ensure t)
+#+END_SRC
+
+Hydra integration with use-package.
+
+#+BEGIN_SRC emacs-lisp
+(use-package use-package-hydra
   :ensure t)
 #+END_SRC
 ** Modal editing
 Modal editing is more efficient and ergonomical way to edit text. The package I use for implementing modal editing to my config is called Modalka.
 
 #+BEGIN_SRC emacs-lisp
+;; These functions will be needed soon.
 (defun enable-modalka-mode ()
  (interactive)
  (modalka-mode t))
 
+(defun reverse-kill-line ()
+  (interactive)
+  (kill-line 0))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
 (use-package modalka
   :ensure t
+  :after hydra use-package-hydra
   :bind
-  ("<escape>" . 'enable-modalka-mode)
+  ("<escape>" . enable-modalka-mode)
   (:map modalka-mode-map)
-  ("p" . 'modalka-mode)
-  ("j" . 'backward-char)
-  ("u" . 'left-word)
-  ("k" . 'next-line)
-  ("C-k" . 'end-of-buffer)
-  ("i" . 'previous-line)
-  ("C-i" . 'beginning-of-buffer)
-  ("l" . 'forward-char)
-  ("o" . 'right-word)
-  ("h" . 'beginning-of-line)
-  (";" . 'end-of-line)
-  ("y" . 'undo)
-  ("v" . 'set-mark-command)
-  ("c" . 'copy-region-as-kill)
+  ("p" . modalka-mode)
+  ("j" . backward-char)
+  ("u" . left-word)
+  ("C-u" . scroll-up)
+  ("k" . next-line)
+  ("C-k" . end-of-buffer)
+  ("i" . previous-line)
+  ("C-i" . beginning-of-buffer)
+  ("l" . forward-char)
+  ("o" . right-word)
+  ("C-o" . scroll-down)
+  ("h" . beginning-of-line)
+  (";" . end-of-line)
+  ("y" . undo)
+  ("v" . set-mark-command)
+  ("c" . copy-region-as-kill)
+  ("a" . org-agenda)
+  ("s" . isearch-forward)
+  ("n" . universal-argument)
+  ("C-v" . yank-pop)
+  ("x" . execute-extended-command)
   :config
-  (defhydra hydra-kill (modalka-mode-map "d")
+  :hydra (hydra-kill (modalka-mode-map "d")
     ("j" delete-backward-char "backward-char")
     ("l" delete-char "char")
     ("u" backward-kill-word "backward-word")
     ("o" kill-word "word")
     ("v" kill-region "region")
-    ("d" kill-line))
-  (defhydra hydra-package (modalka-mode-map "P")
-    ("T" try "try")
-    ("I" package-install "install")
-    ("D" package-delete "delete")
-    ("L" package-list-packages "list-packages"))
-  (defhydra hydra-eval (modalka-mode-map "e")
-    ("D" eval-defun "defun")
-    ("B" eval-buffer "buffer")
-    ("R" eval-region "region")
-    ("S" eval-last-sexp "sexp")
-    ("E" eval-expression "expression"))
-  (setq-default cursor-type '(bar . 1))
-  (setq modalka-cursor-type 'box)
-  (modalka-global-mode t))
+    ("d" kill-whole-line "line")
+    (";" kill-line "end-of-line")
+    ("h" reverse-kill-line "beginnig-of-line")
+    ("g" nil "quit"))
+  :hydra (hydra-package (modalka-mode-map "P")
+    ("t" try "try" :color blue)
+    ("i" package-install "install" :color blue)
+    ("d" package-delete "delete" :color blue)
+    ("r" package-refresh-contents "refresh")
+    ("l" package-list-packages "list" :color blue)
+    ("g" nil "quit"))
+  :hydra (hydra-eval (modalka-mode-map "e")
+    ("d" eval-defun "defun" :color blue)
+    ("b" eval-buffer "buffer" :color blue)
+    ("r" eval-region "region" :color blue)
+    ("s" eval-last-sexp "sexp" :color blue)
+    ("e" eval-expression "expression" :color blue)
+    ("g" nil "quit"))
+  :hydra (hydra-help (modalka-mode-map "?")
+    ("m" man "man" :color blue)
+    ("n" view-emacs-news "news" :color blue)
+    ("d k" describe-key "describe-key" :color blue)
+    ("d f" describe-function "describe-function" :color blue)
+    ("d v" describe-variable "describe-variable" :color blue)
+    ("g" nil "quit"))
+  :hydra (hydra-files (modalka-mode-map "f")
+    ("d" dired "open-directory" :color blue)
+    ("g" nil "quit"))
+  :hydra (hydra-buffer (modalka-mode-map "b")
+    ("k" kill-buffer "kill-buffer" :color blue)
+    ("K" kill-buffer-and-window "kill-buffer-and-window" :color blue)
+    ("m" buffer-menu "buffer-menu" :color blue)
+    ("j" previous-buffer "previous-buffer")
+    ("l" next-buffer "next-buffer")
+    ("g" nil "quit"))
+  :hydra (hydra-space-commands (modalka-mode-map "SPC")
+    ("s" save-buffer "save-buffer")
+    ("f" find-file "find-file")
+    ("Q" kill-emacs "kill-emacs" :color blue)
+    ("g" nil "quit"))
+  :hydra (hydra-zoom (modalka-mode-map "z")
+    "zoom"
+    ("i" text-scale-increase "in")
+    ("k" text-scale-decrease "out"))
+  :custom
+  (cursor-type '(bar . 1))
+  (modalka-cursor-type 'box)
+  :hook
+  (after-init . modalka-global-mode))
 #+END_SRC
 ** Autocompletion
 *** Minibuffer completion
@@ -272,6 +333,7 @@ Amx is used by Counsel-M-x
   :config
   (company-mode t))
 #+END_SRC
+*** Expansion
 ** Search
 *** Ag
 Ag is a faster grep.
@@ -313,6 +375,7 @@ Helpful provides better Emacs "help" buffer
   :ensure nil)
 #+END_SRC
 ** PDF-tools
+
 For viewing Pointless-Document-Format docs in Emacs.
 
 #+BEGIN_SRC emacs-lisp
@@ -397,4 +460,5 @@ I don't use ~M-x customize~ insterface, so, custom-file is set to /dev/null.
   :custom
   (custom-file "/dev/null"))
 #+END_SRC
+
 
