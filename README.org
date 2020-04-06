@@ -94,7 +94,15 @@ If you don't use Emacs in a server mode then you definitely doing something wron
 (use-package doom-themes
  :ensure t
  :config
- (load-theme 'doom-Iosvkem t))
+ (load-theme 'doom-Iosvkem t)
+ (set-face-attribute 'org-document-title t
+           :height 170)
+ (set-face-attribute 'org-level-1 t
+           :height 155)
+ (set-face-attribute 'org-level-2 t
+           :height 135)
+ (set-face-attribute 'org-level-3 t
+           :height 115))
 #+END_SRC
 ** Modeline
 Mood-line is the most minimalistic modeline for Emacs I've ever seen.
@@ -108,7 +116,8 @@ Mood-line is the most minimalistic modeline for Emacs I've ever seen.
             :background "#1b1d1e"
             :overline t)
   (set-face-attribute 'mode-line-inactive nil
-            :background "#1b1d1e")
+            :background "#1b1d1e"
+            :overline t)
   :custom (overline-margin '15)
   :custom (underline-margin '10))
 #+END_SRC
@@ -201,32 +210,29 @@ Modal editing is more efficient and ergonomical way to edit text. The package I 
 #+BEGIN_SRC emacs-lisp
 (use-package modalka
   :ensure t
-  :after hydra use-package-hydra
-  :bind
-  ("<escape>" . enable-modalka-mode)
-  (:map modalka-mode-map)
-  ("p" . modalka-mode)
-  ("j" . backward-char)
-  ("u" . left-word)
-  ("C-u" . scroll-up)
-  ("k" . next-line)
-  ("C-k" . end-of-buffer)
-  ("i" . previous-line)
-  ("C-i" . beginning-of-buffer)
-  ("l" . forward-char)
-  ("o" . right-word)
-  ("C-o" . scroll-down)
-  ("h" . beginning-of-line)
-  (";" . end-of-line)
-  ("y" . undo)
-  ("v" . set-mark-command)
-  ("c" . copy-region-as-kill)
-  ("a" . org-agenda)
-  ("s" . isearch-forward)
-  ("n" . universal-argument)
-  ("C-v" . yank-pop)
-  ("x" . execute-extended-command)
-  :config
+  :general 
+  ("<escape>" 'enable-modalka-mode)
+  (:keymaps '(modalka-mode-map)
+  "p" 'modalka-mode
+  "j" 'backward-char
+  "u" 'left-word
+  "C-u" 'scroll-up
+  "k" 'next-line
+  "C-k" 'end-of-buffer
+  "i" 'previous-line
+  "C-i" 'beginning-of-buffer
+  "l" 'forward-char
+  "o" 'right-word
+  "C-o" 'scroll-down
+  "h" 'beginning-of-line
+  ";" 'end-of-line
+  "y" 'undo
+  "v" 'set-mark-command
+  "c" 'copy-region-as-kill
+  "a" 'execute-extended-command
+  "s" 'isearch-forward
+  "n" 'universal-argument
+  "C-v" 'yank-pop)
   :hydra (hydra-kill (modalka-mode-map "d")
     ("j" delete-backward-char "backward-char")
     ("l" delete-char "char")
@@ -325,15 +331,19 @@ Amx is used by Counsel-M-x
   :ensure t)
 #+END_SRC
 *** In-buffer completion
-**** Company 
-
+**** Company
 #+BEGIN_SRC emacs-lisp
 (use-package company
   :ensure t
   :config
   (company-mode t))
 #+END_SRC
-*** Expansion
+**** Elec-pair
+#+BEGIN_SRC emacs-lisp
+(use-package elec-pair
+  :config
+  (electric-pair-mode t))
+#+END_SRC
 ** Search
 *** Ag
 Ag is a faster grep.
@@ -341,14 +351,6 @@ Ag is a faster grep.
 #+BEGIN_SRC emacs-lisp
 (use-package ag
   :ensure t)
-#+END_SRC
-*** Isearch
-#+BEGIN_SRC emacs-lisp
-(use-package isearch
-  :ensure nil
-  :bind
-  ("M-f" . 'isearch-forward)
-  ("C-f" . 'isearch-backward))
 #+END_SRC
 ** Frame manipulation
 #+BEGIN_SRC emacs-lisp
@@ -429,6 +431,17 @@ Hide dotfiles in dired buffers.
   :hook
   (dired-mode . dired-hide-dotfiles-mode))
 #+END_SRC
+
+
+Asynchronous dired
+
+#+BEGIN_SRC emacs-lisp
+(use-package async
+  :ensure t
+  :defer t
+  :init
+  (dired-async-mode t))
+#+END_SRC
 ** Set a backup directory
 #+BEGIN_SRC emacs-lisp
 (use-package files
@@ -440,16 +453,6 @@ Hide dotfiles in dired buffers.
    `((".*" . ,(expand-file-name (concat user-emacs-directory "autosaves/")))))
   (auto-save-file-name-transforms
    `((".*" ,(expand-file-name (concat user-emacs-directory "autosaves/")) t))))
-#+END_SRC
-
-Asynchronous dired
-
-#+BEGIN_SRC emacs-lisp
-(use-package async
-  :ensure t
-  :defer t
-  :init
-  (dired-async-mode t))
 #+END_SRC
 * Custom
 I don't use ~M-x customize~ insterface, so, custom-file is set to /dev/null.
