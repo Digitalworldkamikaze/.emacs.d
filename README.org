@@ -61,7 +61,7 @@ If you don't use Emacs in a server mode then you definitely doing something wron
 (server-start)
 #+END_SRC
 * Interface & Appearence
-** Emacs variables defined in C source code
+** C source code variables
 #+BEGIN_SRC emacs-lisp 
 (use-package emacs
   :ensure nil
@@ -269,6 +269,7 @@ Modal editing is more efficient and ergonomical way to edit text. The package I 
     ("m" buffer-menu "buffer-menu")
     ("j" previous-buffer "previous-buffer" :color red)
     ("l" next-buffer "next-buffer" :color red)
+    ("s" switch-to-buffer "switch-buffer")
     ("g" nil "quit"))
   :hydra (hydra-space-commands (:color blue)
     ("s" save-buffer "save-buffer" :color red)
@@ -322,10 +323,10 @@ Modal editing is more efficient and ergonomical way to edit text. The package I 
 *** Minibuffer completion
 **** Ivy
 #+BEGIN_SRC emacs-lisp
-(use-package ivy
-  :straight t
-  :config
-  (ivy-mode t))
+;(use-package ivy
+;  :straight t
+;  :config
+;  (ivy-mode t))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -345,27 +346,34 @@ Amx is used by Counsel-M-x
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-(use-package counsel
-  :straight t
-  :bind
-  (([remap insert-char] . counsel-unicode-char)
-   ([remap isearch-forward] . counsel-grep-or-swiper))
-  :init
-  (counsel-mode))
+;(use-package counsel
+;  :straight t
+;  :bind
+;  (([remap insert-char] . counsel-unicode-char)
+;   ([remap isearch-forward] . counsel-grep-or-swiper))
+;  :init
+;  (counsel-mode))
 #+END_SRC
 
 **** Swiper
 #+BEGIN_SRC emacs-lisp
-(use-package swiper 
-  :straight t)
+;(use-package swiper 
+;  :straight t)
+#+END_SRC
+**** Selectrum (experimental)
+#+BEGIN_SRC emacs-lisp
+(use-package selectrum
+  :straight t
+  :config 
+  (selectrum-mode t))
 #+END_SRC
 *** In-buffer completion
 **** Company
 #+BEGIN_SRC emacs-lisp
 (use-package company
   :straight t
-  :config
-  (company-mode t))
+  :hook
+  (after-init . global-company-mode))
 #+END_SRC
 **** Electric pairs
 #+BEGIN_SRC emacs-lisp
@@ -380,6 +388,33 @@ Ag is a faster grep.
 #+BEGIN_SRC emacs-lisp
 (use-package ag
   :straight t)
+#+END_SRC
+*** Prescient
+/*"Simple but effective sorting and filtering for Emacs."*/
+
+#+BEGIN_SRC emacs-lisp
+(use-package prescient
+  :straight t
+  :config
+  (prescient-persist-mode t))
+#+END_SRC
+
+Here's an interface for it to work with company.
+
+#+BEGIN_SRC emacs-lisp
+(use-package company-prescient
+  :straight t
+  :config
+  (company-prescient-mode t))
+#+END_SRC
+
+...and with Selectrum
+
+#+BEGIN_SRC emacs-lisp
+(use-package selectrum-prescient
+  :straight t
+  :config
+  (selectrum-prescient-mode t))
 #+END_SRC
 ** Frame manipulation
 #+BEGIN_SRC emacs-lisp
