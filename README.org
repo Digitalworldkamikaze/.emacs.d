@@ -443,7 +443,7 @@ Here's an interface for it to work with company.
   ("g" nil "quit"))
   :general 
   (:keymaps 'modalka-mode-map
-  "w" 'hydra-windmove))
+  "w" 'hydra-windmove/body))
 #+END_SRC
 * Help & Manuals
 ** Helpful
