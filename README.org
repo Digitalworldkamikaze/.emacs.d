@@ -38,13 +38,6 @@ Bootstrapping use-package - A cool macro that can both speed-up and make tidier 
 #+BEGIN_SRC emacs-lisp
 (straight-use-package 'use-package)
 #+END_SRC
-** Quelpa
-For installing packages from sources.
-
-#+BEGIN_SRC emacs-lisp
-(use-package quelpa
-  :straight t)
-#+END_SRC
 ** Try
 Try is a tool for trying packages in Emacs without installing them permanently.
 
@@ -84,7 +77,7 @@ Sequence-manipulation functions that complement basic functions.
 (use-package prescient
   :straight t
   :custom
-  (prescient-filter-method '(literal regexp initialism fuzzy))
+  (prescient-filter-method '(literal regexp initialism))
   :config
   (prescient-persist-mode t))
 #+END_SRC
@@ -101,12 +94,12 @@ Here's an interface for it to work with company.
 
 ...and with Selectrum
 
-#+BEGIN_SRC emacs-lisp
-;(use-package selectrum-prescient
-;  :straight t
-;  :after selectrum
-;  :config
-;  (selectrum-prescient-mode t))
+#+BEGIN_SRC emacs-lisp :tangle no
+(use-package selectrum-prescient
+  :straight t
+  :after selectrum
+  :config
+  (selectrum-prescient-mode t))
 #+END_SRC
 
 ...and with ivy
@@ -145,7 +138,8 @@ Common-lisp extensions for Emacs.
   (inhibit-splash-screen t "Don't show the splash screen.")
   (indicate-empty-lines t "Visually indicate empty lines.")
   (indent-tabs-mode nil "Tabs are evil.")
-  (tab-width 4 "Sane default for me."))
+  (tab-width 4 "Sane default for me.")
+  (confirm-kill-processes nil "Don't bother confirming killing processes"))
 #+END_SRC
 ** Simple
 #+BEGIN_SRC emacs-lisp
@@ -158,25 +152,21 @@ Common-lisp extensions for Emacs.
   (column-number-mode t "Show column number in modeline."))
 #+END_SRC
 ** Themes
-#+BEGIN_SRC emacs-lisp
-;(use-package doom-themes
-;  :ensure t
-;  :config
-;  (load-theme 'doom-wilmersdorf t)
-;  (set-face-attribute 'mode-line nil
-;            :background "#282b33")
-;  (set-face-attribute 'mode-line-inactive nil
-;            :background "#282b33"))
+#+BEGIN_SRC emacs-lisp  
+  (use-package doom-themes
+    :straight t
+    :config
+    (load-theme 'doom-molokai t))
+;;  (set-face-attribute 'mode-line nil
+;;            :background  "#1c1e1f" ;; "#282c34"
+;;           :overline nil)
+;; (set-face-attribute 'mode-line-inactive nil
+;;           :background "#1c1e1f" ;; "#282c34"
+;;           :overline nil)
+;; :custom
+;; (overline-margin '5))
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp
-(use-package doom-themes
- :straight t
- :custom-face
- (org-document-title ((t :height 170)))
- :config
- (load-theme 'doom-Iosvkem t))
-#+END_SRC
 ** Fonts & Faces
 #+BEGIN_SRC emacs-lisp
 (use-package faces
@@ -184,25 +174,33 @@ Common-lisp extensions for Emacs.
   :config
   (set-face-attribute 'default
                       nil
-                      :family "Hack"
+                      :family "Source Code Variable"
                       :weight 'semi-light
-                      :width 'semi-condensed
-                      :height 130))
+                      :width  'semi-condensed
+                      :height 145))
 #+END_SRC
 ** Modeline
-Mood-line is the most minimalistic modeline for Emacs I've ever seen.
+#+BEGIN_SRC emacs-lisp
+(use-package doom-modeline
+  :straight t
+  :custom
+  (doom-modeline-height '35)
+  :config
+  (doom-modeline-mode t))
+#+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-(use-package mood-line
+(use-package diminish
   :straight t
   :config
-  (mood-line-mode)
-  :custom-face
-  (mode-line ((t :background "#1b1d1e" :overline t)))
-  (mode-line-inactive ((nil :background "#1b1d1e" :overline t)))
-  :custom 
-  (overline-margin '15)
-  (underline-margin '10))
+  (diminish 'flycheck-mode)
+  (diminish 'counsel-mode)
+  (diminish 'ivy-mode)
+  (diminish 'text-scale-mode)
+  (diminish 'beacon-mode)
+  (diminish 'auto-fill-function)
+  (diminish 'which-key-mode)
+  (diminish 'modalka-mode "normal"))
 #+END_SRC
 ** Icons
 #+BEGIN_SRC emacs-lisp
@@ -233,7 +231,7 @@ Mood-line is the most minimalistic modeline for Emacs I've ever seen.
     (all-the-icons-ivy-setup)))
 #+END_SRC
 ** Beacon
-"Here your cursor is"
+/* "Here your cursor is" */
 
 #+BEGIN_SRC emacs-lisp
 (use-package beacon
@@ -250,9 +248,12 @@ A cool dashboard to see every time I load muh Emacs.
   :config
   (dashboard-setup-startup-hook)
   ;; Set the title
-  (setq dashboard-banner-logo-title "Happy Hacking.")
+  (setq dashboard-banner-logo-title "Welcome to Emacs, thermo-nuclear Man-Machine Interface for Texual data. Happy Hacking.")
   ;; Set the banner
-  (setq dashboard-startup-banner 'logo))
+  (setq dashboard-startup-banner 'logo)
+  (setq dashboard-center-content t)
+  (setq dashboard-items '((recents  . 5)
+                        (bookmarks . 5))))
 #+END_SRC
 ** Darkroom
 Distraction-free mode.
@@ -260,6 +261,13 @@ Distraction-free mode.
 #+BEGIN_SRC emacs-lisp
 (use-package darkroom
   :straight t)
+#+END_SRC
+** Flycheck
+#+BEGIN_SRC emacs-lisp
+(use-package flycheck
+  :straight t
+  :config
+  (global-flycheck-mode t))
 #+END_SRC
 * Keyboard & Shortcuts
 ** General
@@ -283,10 +291,66 @@ Hydra integration with use-package.
 (use-package use-package-hydra
   :straight t)
 #+END_SRC
+** Key-chord
+#+BEGIN_SRC emacs-lisp :tangle no
+(use-package key-chord
+  :straight t
+  :custom
+  (key-chord-two-keys-delay '0.01)
+  (key-chord-one-key-delay '0.15)
+  :hook
+  (after-init . key-chord-global-mode))
+
+;(key-chord-define modalka-mode-map "dj" 'delete-backward-char)
+;(key-chord-define modalka-mode-map "dl" 'delete-char)
+;(key-chord-define modalka-mode-map "du" 'backward-kill-word)
+;(key-chord-define modalka-mode-map "do" 'kill-word)
+;(key-chord-define modalka-mode-map "dr" 'kill-region)
+;(key-chord-define modalka-mode-map "dd" 'kill-whole-line)
+;(key-chord-define modalka-mode-map "dm" 'avy-kill-whole-line)
+;(key-chord-define modalka-mode-map "d;" 'kill-line)
+;(key-chord-define modalka-mode-map "dh" 'reverse-kill-line)
+;(key-chord-define modalka-mode-map "dt" 'zap-to-char)
+
+;(key-chord-define modalka-mode-map "tl" 'counsel-yank-pop)
+
+
+;(key-chord-define modalka-mode-map "ei" 'move-text-up)
+;(key-chord-define modalka-mode-map "ek" 'move-text-down)
+
+;(key-chord-define modalka-mode-map "qo" 'capitalize-word)
+;(key-chord-define modalka-mode-map "qr" 'capitalize-region)
+
+;(key-chord-define modalka-mode-map "xk" 'kill-buffer)
+;(key-chord-define modalka-mode-map "xw" 'kill-buffer-and-window)
+;(key-chord-define modalka-mode-map "xm" 'buffer-menu)
+;(key-chord-define modalka-mode-map "xj" 'previous-buffer)
+;(key-chord-define modalka-mode-map "xl" 'next-buffer)
+;(key-chord-define modalka-mode-map "xs" 'switch-to-buffer)
+;(key-chord-define modalka-mode-map "xk" 'kill-buffer)
+
+;(key-chord-define modalka-mode-map "rr" 'set-mark-command)
+;(key-chord-define modalka-mode-map "rj" 'back-button-local-forward)
+;(key-chord-define modalka-mode-map "rl" 'back-button-local-backward)
+
+#+END_SRC
 ** Avy
 #+BEGIN_SRC emacs-lisp
 (use-package avy
-  :straight t)
+  :straight t
+  :after modalka
+  :general
+  ('modalka-mode-map
+  "m" 'avy-goto-line)
+  :hydra (hydra-avy (:color blue)
+  "avy"
+  ("f" avy-goto-char-timer "goto-char-timer")
+  ("k" avy-goto-char-2-below "goto-char-2-below")
+  ("i" avy-goto-char-2-above "goto-char-2-above")
+  ("l" avy-goto-char-in-line "goto-char-in-line")
+  ("o" avy-goto-word-1 "goto-word-1"))
+  :custom
+  (avy-style 'words))
 #+END_SRC
 ** Modal editing
 Modal editing is more efficient and ergonomical way to edit text.
@@ -300,12 +364,14 @@ The package I use for implementing modal editing to my config is called Modalka.
     ("l" delete-char "char")
     ("u" backward-kill-word "backward-word")
     ("o" kill-word "word")
-    ("v" kill-region "region" :color blue)
+    ("r" kill-region "region" :color blue)
     ("d" kill-whole-line "line")
+    ("m" avy-kill-whole-line "avy-kill-whole-line")
     (";" kill-line "end-of-line")
     ("h" reverse-kill-line "to-beginnig-of-line")
     ("t" zap-to-char "to-char" :color blue)
     ("g" nil "quit"))
+
 #+END_SRC
 
 **** Yanking
@@ -319,22 +385,14 @@ The package I use for implementing modal editing to my config is called Modalka.
   ("l" counsel-yank-pop "list" :color blue)
   ("g" nil "quit"))
 #+END_SRC
-**** Goto line
-#+BEGIN_SRC emacs-lisp
-(defhydra hydra-goto-line (goto-map ""
-                           :pre (linum-mode 1)
-                           :post (linum-mode -1))
-  "goto-line"
-  ("z" goto-line "go")
-  ("v" set-mark-command "mark" :bind nil)
-  ("g" nil "quit"))
-#+END_SRC
 **** Move text
 #+BEGIN_SRC emacs-lisp
-(defhydra hydra-move-text ()
+(use-package move-text
+  :straight t
+  :hydra hydra-move-text ()
   "Move text"
-  ("u" move-text-up "up")
-  ("d" move-text-down "down")
+  ("i" move-text-up "up")
+  ("k" move-text-down "down")
   ("g" nil "quit"))
 #+END_SRC
 **** Capitalizing
@@ -342,7 +400,34 @@ The package I use for implementing modal editing to my config is called Modalka.
 (defhydra hydra-capitalize ()
   "capitalize"
   ("o" capitalize-word "word")
-  ("v" capitalize-region "region"))
+  ("r" capitalize-region "region"))
+#+END_SRC
+**** Commenting
+#+BEGIN_SRC emacs-lisp
+(defhydra hydra-comment ()
+  ("b" comment-box "box"))
+#+END_SRC
+**** Buffer navigation & manipulation
+#+BEGIN_SRC emacs-lisp
+(defhydra hydra-buffer (:color blue)
+    ("k" kill-buffer "kill-buffer")
+    ("w" kill-buffer-and-window "kill-buffer-and-window")
+    ("m" buffer-menu "buffer-menu")
+    ("j" previous-buffer "previous-buffer" :color red)
+    ("l" next-buffer "next-buffer" :color red)
+    ("s" switch-to-buffer "switch-buffer")
+    ("g" nil "quit"))
+#+END_SRC
+**** Mark ring
+#+BEGIN_SRC emacs-lisp
+(use-package back-button
+  :straight t
+  :after modalka
+  :hydra (hydra-mark-ring ()
+  ("r" set-mark-command "set-mark" :color blue)
+  ("j" back-button-local-forward "local-forward")
+  ("l" back-button-local-backward "local-backward")
+  ("g" nil "quit")))
 #+END_SRC
 **** Evaluation
 #+BEGIN_SRC emacs-lisp
@@ -353,6 +438,16 @@ The package I use for implementing modal editing to my config is called Modalka.
     ("r" eval-region "region")
     ("s" eval-last-sexp "last-sexp")
     ("e" eval-expression "expression")
+    ("g" nil "quit"))
+#+END_SRC
+**** Package Management
+#+BEGIN_SRC emacs-lisp
+(defhydra hydra-package (:color blue)
+    ("i" package-install "install")
+    ("r" package-refresh-contents "refresh-contents" :color red)
+    ("t" try "try")
+    ("d" package-delete "delete")
+    ("l" package-list-packages "list-packages")
     ("g" nil "quit"))
 #+END_SRC
 **** Help
@@ -376,27 +471,6 @@ The package I use for implementing modal editing to my config is called Modalka.
     ("v" describe-variable "describe-variable")
     ("g" nil "quit"))
 #+END_SRC
-**** Package Management
-#+BEGIN_SRC emacs-lisp
-(defhydra hydra-package (:color blue)
-    ("i" package-install "install")
-    ("r" package-refresh-contents "refresh-contents" :color red)
-    ("t" try "try")
-    ("d" package-delete "delete")
-    ("l" package-list-packages "list-packages")
-    ("g" nil "quit"))
-#+END_SRC
-**** Buffer navigation & manipulation
-#+BEGIN_SRC emacs-lisp
-(defhydra hydra-buffer (:color blue)
-    ("k" kill-buffer "kill-buffer")
-    ("K" kill-buffer-and-window "kill-buffer-and-window")
-    ("m" buffer-menu "buffer-menu")
-    ("j" previous-buffer "previous-buffer" :color red)
-    ("l" next-buffer "next-buffer" :color red)
-    ("s" switch-to-buffer "switch-buffer")
-    ("g" nil "quit"))
-#+END_SRC
 **** Zooming
 Zooming in and out. One of the space commands.
 
@@ -406,24 +480,13 @@ Zooming in and out. One of the space commands.
     ("i" text-scale-increase "in")
     ("k" text-scale-decrease "out"))
 #+END_SRC
-**** Mark ring
-#+BEGIN_SRC emacs-lisp
-(use-package back-button
-  :straight t
-  :after modalka
-  :hydra (hydra-mark-ring ()
-  ("v" set-mark-command "set-mark")
-  ("j" back-button-local-forward "local-forward")
-  ("l" back-button-local-backward "local-backward")
-  ("g" nil "quit")))
-#+END_SRC
 **** Space-commands
 Commands that you don't need right at your fingers, but ones you need pretty often. Bound to Space.
 
 #+BEGIN_SRC emacs-lisp
 (defhydra hydra-space-commands (:color blue)
     ("s" save-buffer "save-buffer" :color red)
-    ("f" find-file "find-file")
+    ("f" find-file "find-file" :color red)
     ("Q" kill-emacs "kill-emacs")
     ("d" dired "dired")
     ("a" org-agenda "org-agenda")
@@ -435,7 +498,6 @@ Commands that you don't need right at your fingers, but ones you need pretty oft
     ("u" scroll-down "scroll-up")
     ("o" scroll-up "scroll-down")
     ("e" hydra-eval/body "eval")
-    ("r" replace-string "replace-string")
     ("g" nil "quit"))
 #+END_SRC
 *** Modalka
@@ -453,46 +515,95 @@ Commands that you don't need right at your fingers, but ones you need pretty oft
 #+BEGIN_SRC emacs-lisp
 (use-package modalka
   :straight t
-  :after avy
   :general
   ("C-;" 'enable-modalka-mode)
   ("<escape>" 'enable-modalka-mode) ; enable insert-mode
   ('modalka-mode-map
-  "p" 'modalka-mode ; enable insert-mode
-;; Navigation
-  "j" 'backward-char
-  "l" 'forward-char
-  "k" 'next-line
-  "i" 'previous-line
-  "u" 'left-word
-  "o" 'right-word
-  "f" 'avy-goto-word-0
-  "h" 'beginning-of-line
-  ";" 'end-of-line
-  "z" 'hydra-goto-line
-  "m" 'hydra-move-text/body
-;; Editing
-  "v" 'hydra-mark-ring/body
-  "y" 'undo
-  "c" 'hydra-copy/body
-  "a" 'execute-extended-command
-  "n" 'universal-argument
-  "g" 'keyboard-quit
-  "d" 'hydra-kill/body
-  "c" 'copy-region-as-kill
-  "s" 'isearch-forward
-  "r" 'hydra-capitalize/body
+  "q" 'hydra-capitalize/body
+  "w" 'copy-region-as-kill
+  "e" 'hydra-move-text/body
+  "r" 'hydra-mark-ring/body
   "t" 'hydra-yank/yank
+  "y" 'undo
+  "u" 'left-word
+  "i" 'previous-line
+  "o" 'right-word
+  "p" 'modalka-mode ; enable insert-mode
+  "a" 'execute-extended-command
+  "s" 'isearch-forward
+  "d" 'hydra-kill/body
+  "f" 'hydra-avy/body
+  "g" 'keyboard-quit
+  "h" 'beginning-of-line
+  "j" 'backward-char
+  "k" 'next-line
+  "l" 'forward-char
+  ";" 'end-of-line
+  "x" 'hydra-buffer/body
+  "n" 'universal-argument
   "(" 'backward-sexp
   ")" 'forward-sexp
-;; Everything else
-  "x" 'hydra-buffer/body
   "SPC" 'hydra-space-commands/body)
   :custom
   (cursor-type '(bar . 1))
   (modalka-cursor-type 'box)
   :hook
   (after-init . modalka-global-mode))
+#+END_SRC
+** Frame Manipulation
+#+BEGIN_SRC emacs-lisp
+(use-package frame
+  :ensure nil
+  :after modalka
+  :hydra (hydra-frame ()
+  ("o" other-frame "other-frame")
+  ("3" make-frame-command "make-frame-command")
+  ("2" delete-other-frames "delete-other-frames")
+  ("1" delete-frame "delete-frame"))
+  :general
+  ;; Disable suspending
+  ("C-z" . nil)
+  ("C-z C-z" . nil)
+  (:keymaps 'modalka-mode-map
+  "c" 'hydra-frame/body))
+#+END_SRC
+** Window manipulation
+#+BEGIN_SRC emacs-lisp
+(use-package ace-window
+  :straight t
+  :after modalka
+  :hydra (hydra-window ()
+  ("z" ace-window "select-window" :color blue)
+  ("3" split-window-right "split-window-right")
+  ("2" delete-other-windows "delete-other-windows")
+  ("1" delete-window "delete-window")
+  ("g" nil "quit"))
+  :general
+  (:keymaps 'modalka-mode-map
+  "z" 'hydra-window/body))
+#+END_SRC
+* Search
+** Ripgrep
+#+BEGIN_SRC emacs-lisp
+(use-package rg
+  :straight t)
+#+END_SRC
+** Ag
+Ag is a faster grep
+
+#+BEGIN_SRC emacs-lisp
+(use-package ag
+  :straight t)
+#+END_SRC
+* Programming
+** Languages
+*** Lisps
+**** Smartparens
+#+BEGIN_SRC emacs-lisp
+(use-package smartparens
+  :straight t
+  :hook
+  (prog-mode . smartparens-mode))
 #+END_SRC
 ** Autocompletion
 *** Minibuffer completion
@@ -501,7 +612,11 @@ Commands that you don't need right at your fingers, but ones you need pretty oft
 (use-package ivy
   :straight t
   :config
-  (ivy-mode t))
+  (ivy-mode t)
+  :general 
+  ('ivy-mode-map
+  "C-i" 'ivy-previous-line
+  "C-k" 'ivy-next-line))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -515,7 +630,7 @@ Commands that you don't need right at your fingers, but ones you need pretty oft
 Amx is used by ~Counsel-M-x~.
 
 #+BEGIN_SRC emacs-lisp
-(use-package amx 
+(use-package amx
   :straight t 
   :defer t)
 #+END_SRC
@@ -537,19 +652,25 @@ Counsel itself.
 (use-package swiper 
   :straight t)
 #+END_SRC
-
 **** Selectrum
-#+BEGIN_SRC emacs-lisp
-;(use-package selectrum
-;  :straight t
-;  :config 
-;  (selectrum-mode t))
+I don't use that one anymore.
+
+#+BEGIN_SRC emacs-lisp :tangle no
+(use-package selectrum
+  :straight t
+  :config 
+  (selectrum-mode t))
 #+END_SRC
 *** In-buffer completion
 **** Company
 #+BEGIN_SRC emacs-lisp
 (use-package company
   :straight t
+  :config
+  (setq company-idle-delay 0)
+  (setq company-minimum-prefix-length 1)
+  (setq company-selection-wrap-around t)
+  (company-tng-configure-default)
   :hook
   (after-init . global-company-mode))
 #+END_SRC
@@ -558,41 +679,6 @@ Counsel itself.
 (use-package elec-pair
   :config
   (electric-pair-mode t))
-#+END_SRC
-** Frame Manipulation
-#+BEGIN_SRC emacs-lisp
-(use-package frame
-  :ensure nil
-  :after modalka
-  :hydra (hydra-frame-movement ()
-  ("o" other-frame "other-frame")
-  ("3" make-frame-command "make-frame-command")
-  ("2" delete-other-frames "delete-other-frames")
-  ("1" delete-frame "delete-frame"))
-  :general
-  ;; Disable suspending
-  ("C-z" . nil)
-  ("C-z C-z" . nil)
-  (:keymaps 'modalka-mode-map
-  "e" 'hydra-frame-movement/body))
-#+END_SRC
-** Window manipulation
-#+BEGIN_SRC emacs-lisp
-(use-package windmove
-  :straight t
-  :after modalka
-  :hydra (hydra-windmove ()
-  ("j" windmove-left "left")
-  ("i" windmove-up "up")
-  ("k" windmove-down "down")
-  ("l" windmove-right "right")
-  ("3" split-window-right "split-window-right")
-  ("2" delete-other-windows "delete-other-windows")
-  ("1" delete-window "delete-window")
-  ("g" nil "quit"))
-  :general 
-  (:keymaps 'modalka-mode-map
-  "w" 'hydra-windmove/body))
 #+END_SRC
 * Help & Manuals
 ** Helpful
@@ -609,19 +695,30 @@ A nice little tool to remind you about what keys do you want to press.
 (use-package which-key
   :straight t
   :config
-  (which-key-mode t))
+  (which-key-mode t)
+  (setq which-key-idle-delay 0.4
+        which-key-idle-secondary-delay 0.4))
 #+END_SRC
 * Term & Shell
 ** Vterm
 #+BEGIN_SRC emacs-lisp
-;(use-package vterm
-;  :straight t)
+(use-package vterm
+  :straight t)
 #+END_SRC
 * Org & Documents
 ** Org
 #+BEGIN_SRC emacs-lisp
 (use-package org
-  :ensure nil)
+  :ensure nil
+  :hook
+  (org-mode . auto-fill-mode))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(use-package org-pretty-table
+  :straight (org-pretty-table :type git :host github :repo "Fuco1/org-pretty-table")
+  :hook
+  (org-mode . org-pretty-table-mode))
 #+END_SRC
 ** PDF-tools
 
@@ -689,6 +786,7 @@ Asynchronous dired
   :init
   (dired-async-mode t))
 #+END_SRC
+
 ** Set a backup directory
 #+BEGIN_SRC emacs-lisp
 (use-package files
@@ -710,5 +808,8 @@ I don't use ~M-x customize~ insterface, so custom-file is set to /dev/null.
   :custom
   (custom-file "/dev/null"))
 #+END_SRC
+
+
+
 
 
