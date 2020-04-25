@@ -598,12 +598,22 @@ Ag is a faster grep
 * Programming
 ** Languages
 *** Lisps
-**** Smartparens
+**** Paredit
 #+BEGIN_SRC emacs-lisp
-(use-package smartparens
+(use-package paredit
+  :straight t
+  :general
+  ('paredit-mode-map
+  ";" 'nil)
+  :hook
+  ((scheme-mode lisp-mode clojure-mode emacs-lisp-mode) . paredit-mode))
+#+END_SRC
+**** Rainbow-delimiters
+#+BEGIN_SRC emacs-lisp
+(use-package rainbow-delimiters
   :straight t
   :hook
-  (prog-mode . smartparens-mode))
+  (prog-mode . rainbow-delimiters-mode))
 #+END_SRC
 ** Autocompletion
 *** Minibuffer completion
@@ -616,7 +626,8 @@ Ag is a faster grep
   :general 
   ('ivy-mode-map
   "C-i" 'ivy-previous-line
-  "C-k" 'ivy-next-line))
+  "C-k" 'ivy-next-line
+  "TAB" 'ivy-partial-or-done))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
