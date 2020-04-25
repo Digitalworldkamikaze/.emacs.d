@@ -262,6 +262,11 @@ Distraction-free mode.
 (use-package darkroom
   :straight t)
 #+END_SRC
+** Focus
+#+BEGIN_SRC emacs-lisp
+(use-package focus
+  :straight t)
+#+END_SRC 
 ** Flycheck
 #+BEGIN_SRC emacs-lisp
 (use-package flycheck
@@ -615,6 +620,13 @@ Ag is a faster grep
   :hook
   (prog-mode . rainbow-delimiters-mode))
 #+END_SRC
+**** Lispy
+/Short and sweet lisp editing/
+
+#+BEGIN_SRC emacs-lisp
+(use-package lispy
+  :straight t)
+#+END_SRC
 ** Autocompletion
 *** Minibuffer completion
 **** Ivy
@@ -809,6 +821,16 @@ Asynchronous dired
    `((".*" . ,(expand-file-name (concat user-emacs-directory "autosaves/")))))
   (auto-save-file-name-transforms
    `((".*" ,(expand-file-name (concat user-emacs-directory "autosaves/")) t))))
+#+END_SRC
+* Version control
+** Magit
+#+BEGIN_SRC emacs-lisp
+(use-package magit
+  :straight t
+  :config
+  ;; Add binding in SPC-commands hydra.
+  (defhydra+ hydra-space-commands ()
+  ("m" magit))
 #+END_SRC
 * Custom
 I don't use ~M-x customize~ insterface, so custom-file is set to /dev/null.
