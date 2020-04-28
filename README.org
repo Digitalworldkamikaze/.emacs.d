@@ -70,7 +70,7 @@ Sequence-manipulation functions that complement basic functions.
   :ensure nil)
 #+END_SRC
 
-** Prescient
+** Prescientn
 /*"Simple but effective sorting and filtering for Emacs."*/
 
 #+BEGIN_SRC emacs-lisp
@@ -156,15 +156,7 @@ Common-lisp extensions for Emacs.
   (use-package doom-themes
     :straight t
     :config
-    (load-theme 'doom-molokai t))
-;;  (set-face-attribute 'mode-line nil
-;;            :background  "#1c1e1f" ;; "#282c34"
-;;           :overline nil)
-;; (set-face-attribute 'mode-line-inactive nil
-;;           :background "#1c1e1f" ;; "#282c34"
-;;           :overline nil)
-;; :custom
-;; (overline-margin '5))
+    (load-theme 'doom-one t))
 #+END_SRC
 
 ** Fonts & Faces
@@ -184,7 +176,7 @@ Common-lisp extensions for Emacs.
 (use-package doom-modeline
   :straight t
   :custom
-  (doom-modeline-height '35)
+  (doom-modeline-height '50)
   :config
   (doom-modeline-mode t))
 #+END_SRC
@@ -343,13 +335,9 @@ Hydra integration with use-package.
 #+BEGIN_SRC emacs-lisp
 (use-package avy
   :straight t
-  :after modalka
-  :general
-  ('modalka-mode-map
-  "m" 'avy-goto-line)
   :hydra (hydra-avy (:color blue)
   "avy"
-  ("f" avy-goto-char-timer "goto-char-timer")
+  ("f" avy-goto-char "goto-char")
   ("k" avy-goto-char-2-below "goto-char-2-below")
   ("i" avy-goto-char-2-above "goto-char-2-above")
   ("l" avy-goto-char-in-line "goto-char-in-line")
@@ -359,28 +347,24 @@ Hydra integration with use-package.
 #+END_SRC
 ** Modal editing
 Modal editing is more efficient and ergonomical way to edit text.
-The package I use for implementing modal editing to my config is called Modalka.
-*** Editing Hydras
-**** Killing
+The package I use for implementing modal editing to my config is
+called Modalka.
+*** Editing hydras
 #+BEGIN_SRC emacs-lisp
 (defhydra hydra-kill (:color red)
-    "kill"
-    ("j" delete-backward-char "backward-char")
-    ("l" delete-char "char")
-    ("u" backward-kill-word "backward-word")
-    ("o" kill-word "word")
-    ("r" kill-region "region" :color blue)
-    ("d" kill-whole-line "line")
+    "Kill"
+    ("j" delete-backward-char "Backward Char")
+    ("l" delete-char "Char")
+    ("u" backward-kill-word "Backward Word")
+    ("o" kill-word "Word")
+    ("r" kill-region "Region" :color blue)
+    ("d" kill-whole-line "Line")
     ("m" avy-kill-whole-line "avy-kill-whole-line")
-    (";" kill-line "end-of-line")
-    ("h" reverse-kill-line "to-beginnig-of-line")
-    ("t" zap-to-char "to-char" :color blue)
+    (";" kill-line "To the End of a Line")
+    ("h" reverse-kill-line "To the Beginning of a Line")
+    ("t" zap-to-char "To Char" :color blue)
     ("g" nil "quit"))
 
-#+END_SRC
-
-**** Yanking
-#+BEGIN_SRC emacs-lisp
 (defhydra hydra-yank ()
   "yank"
   ("y" yank nil)
@@ -389,9 +373,7 @@ The package I use for implementing modal editing to my config is called Modalka.
   ("i" (yank-pop -1) "prev")
   ("l" counsel-yank-pop "list" :color blue)
   ("g" nil "quit"))
-#+END_SRC
-**** Move text
-#+BEGIN_SRC emacs-lisp
+
 (use-package move-text
   :straight t
   :hydra hydra-move-text ()
@@ -399,21 +381,17 @@ The package I use for implementing modal editing to my config is called Modalka.
   ("i" move-text-up "up")
   ("k" move-text-down "down")
   ("g" nil "quit"))
-#+END_SRC
-**** Capitalizing
-#+BEGIN_SRC emacs-lisp
+
 (defhydra hydra-capitalize ()
   "capitalize"
   ("o" capitalize-word "word")
-  ("r" capitalize-region "region"))
-#+END_SRC
-**** Commenting
-#+BEGIN_SRC emacs-lisp
+  ("r" capitalize-region "region")
+  ("g" quit))
+
 (defhydra hydra-comment ()
-  ("b" comment-box "box"))
-#+END_SRC
-**** Buffer navigation & manipulation
-#+BEGIN_SRC emacs-lisp
+  ("b" comment-box "box")
+  ("g" quit))
+
 (defhydra hydra-buffer (:color blue)
     ("k" kill-buffer "kill-buffer")
     ("w" kill-buffer-and-window "kill-buffer-and-window")
@@ -422,9 +400,7 @@ The package I use for implementing modal editing to my config is called Modalka.
     ("l" next-buffer "next-buffer" :color red)
     ("s" switch-to-buffer "switch-buffer")
     ("g" nil "quit"))
-#+END_SRC
-**** Mark ring
-#+BEGIN_SRC emacs-lisp
+
 (use-package back-button
   :straight t
   :after modalka
@@ -433,9 +409,7 @@ The package I use for implementing modal editing to my config is called Modalka.
   ("j" back-button-local-forward "local-forward")
   ("l" back-button-local-backward "local-backward")
   ("g" nil "quit")))
-#+END_SRC
-**** Evaluation
-#+BEGIN_SRC emacs-lisp
+
 (defhydra hydra-eval (:color blue)
     "eval"
     ("d" eval-defun "defun")
@@ -444,9 +418,7 @@ The package I use for implementing modal editing to my config is called Modalka.
     ("s" eval-last-sexp "last-sexp")
     ("e" eval-expression "expression")
     ("g" nil "quit"))
-#+END_SRC
-**** Package Management
-#+BEGIN_SRC emacs-lisp
+
 (defhydra hydra-package (:color blue)
     ("i" package-install "install")
     ("r" package-refresh-contents "refresh-contents" :color red)
@@ -454,9 +426,7 @@ The package I use for implementing modal editing to my config is called Modalka.
     ("d" package-delete "delete")
     ("l" package-list-packages "list-packages")
     ("g" nil "quit"))
-#+END_SRC
-**** Help
-#+BEGIN_SRC emacs-lisp
+
 (defhydra hydra-help (:color blue)
     ("m" man "man")
     ("i" info "info")
@@ -475,20 +445,13 @@ The package I use for implementing modal editing to my config is called Modalka.
     ("o" describe-symbol "describe-symbol")
     ("v" describe-variable "describe-variable")
     ("g" nil "quit"))
-#+END_SRC
-**** Zooming
-Zooming in and out. One of the space commands.
 
-#+BEGIN_SRC emacs-lisp
 (defhydra hydra-zoom ()
     "zoom"
     ("i" text-scale-increase "in")
-    ("k" text-scale-decrease "out"))
-#+END_SRC
-**** Space-commands
-Commands that you don't need right at your fingers, but ones you need pretty often. Bound to Space.
+    ("k" text-scale-decrease "out")
+    ("g" quit))
 
-#+BEGIN_SRC emacs-lisp
 (defhydra hydra-space-commands (:color blue)
     ("s" save-buffer "save-buffer" :color red)
     ("f" find-file "find-file" :color red)
@@ -504,9 +467,7 @@ Commands that you don't need right at your fingers, but ones you need pretty oft
     ("o" scroll-up "scroll-down")
     ("e" hydra-eval/body "eval")
     ("g" nil "quit"))
-#+END_SRC
-*** Modalka
-#+BEGIN_SRC emacs-lisp
+
 ;; These functions will be needed soon.
 (defun enable-modalka-mode ()
  (interactive)
@@ -515,9 +476,7 @@ Commands that you don't need right at your fingers, but ones you need pretty oft
 (defun reverse-kill-line ()
   (interactive)
   (kill-line 0))
-#+END_SRC
 
-#+BEGIN_SRC emacs-lisp
 (use-package modalka
   :straight t
   :general
@@ -545,6 +504,7 @@ Commands that you don't need right at your fingers, but ones you need pretty oft
   "l" 'forward-char
   ";" 'end-of-line
   "x" 'hydra-buffer/body
+  "m" 'avy-goto-line
   "n" 'universal-argument
   "(" 'backward-sexp
   ")" 'forward-sexp
@@ -604,6 +564,7 @@ Ag is a faster grep
 ** Languages
 *** Lisps
 **** Paredit
+*Not configured yet*
 #+BEGIN_SRC emacs-lisp
 (use-package paredit
   :straight t
@@ -612,6 +573,18 @@ Ag is a faster grep
   ";" 'nil)
   :hook
   ((scheme-mode lisp-mode clojure-mode emacs-lisp-mode) . paredit-mode))
+#+END_SRC
+**** Parinfer
+*Not configured yet.*
+
+#+BEGIN_SRC emacs-lisp :tangle no
+(use-package parinfer
+  :straight t
+  :general
+  ('parinfer-mode-map
+  ";" 'nil)
+  :hook
+  ((scheme-mode lisp-mode clojure-mode emacs-lisp-mode) . parinfer-mode))
 #+END_SRC
 **** Rainbow-delimiters
 #+BEGIN_SRC emacs-lisp
@@ -622,10 +595,20 @@ Ag is a faster grep
 #+END_SRC
 **** Lispy
 /Short and sweet lisp editing/
+*Not configured yet*
 
 #+BEGIN_SRC emacs-lisp
 (use-package lispy
   :straight t)
+#+END_SRC
+**** Common Lisp
+***** Sly
+*Not configured yet*
+#+BEGIN_SRC emacs-lisp
+(use-package sly
+  :straight t
+  :custom
+  (inferior-lisp-program "sbcl"))
 #+END_SRC
 ** Autocompletion
 *** Minibuffer completion
@@ -633,13 +616,13 @@ Ag is a faster grep
 #+BEGIN_SRC emacs-lisp
 (use-package ivy
   :straight t
-  :config
-  (ivy-mode t)
   :general 
   ('ivy-mode-map
-  "C-i" 'ivy-previous-line
-  "C-k" 'ivy-next-line
-  "TAB" 'ivy-partial-or-done))
+  "C-j" 'ivy-previous-line
+  "C-l" 'ivy-next-line
+  "TAB" 'ivy-partial-or-done)
+  :config
+  (ivy-mode t))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -724,7 +707,7 @@ A nice little tool to remind you about what keys do you want to press.
 #+END_SRC
 * Term & Shell
 ** Vterm
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (use-package vterm
   :straight t)
 #+END_SRC
@@ -820,7 +803,8 @@ Asynchronous dired
   (backup-directory-alist
    `((".*" . ,(expand-file-name (concat user-emacs-directory "autosaves/")))))
   (auto-save-file-name-transforms
-   `((".*" ,(expand-file-name (concat user-emacs-directory "autosaves/")) t))))
+   `((".*" ,(expand-file-name (concat user-emacs-directory "autosaves/")) t)))
+  (insert-default-directory nil))
 #+END_SRC
 * Version control
 ** Magit
@@ -830,7 +814,7 @@ Asynchronous dired
   :config
   ;; Add binding in SPC-commands hydra.
   (defhydra+ hydra-space-commands ()
-  ("m" magit))
+  ("m" magit)))
 #+END_SRC
 * Custom
 I don't use ~M-x customize~ insterface, so custom-file is set to /dev/null.
@@ -841,8 +825,3 @@ I don't use ~M-x customize~ insterface, so custom-file is set to /dev/null.
   :custom
   (custom-file "/dev/null"))
 #+END_SRC
-
-
-
-
-
