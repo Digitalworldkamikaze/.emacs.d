@@ -148,8 +148,10 @@ Common-lisp extensions for Emacs.
   :config
   (defalias 'yes-or-no-p 'y-or-n-p)
   :custom
-  (line-number-mode t "Show line number in modeline.")
-  (column-number-mode t "Show column number in modeline."))
+  (line-number-mode nil)
+  (column-number-mode nil)
+  (display-line-numbers-type 'relative)
+  (global-display-line-numbers-mode t ))
 #+END_SRC
 ** Themes
 #+BEGIN_SRC emacs-lisp  
@@ -171,6 +173,59 @@ Common-lisp extensions for Emacs.
                       :width  'semi-condensed
                       :height 145))
 #+END_SRC
+** Highlight indentation
+#+BEGIN_SRC emacs-lisp
+(when (display-graphic-p)
+  (use-package highlight-indent-guides
+    :diminish
+    :functions (ivy-cleanup-string
+                my-ivy-cleanup-indentation)
+    :commands highlight-indent-guides--highlighter-default
+    :functions my-indent-guides-for-all-but-first-column
+    ;; :hook (prog-mode . highlight-indent-guides-mode)
+    :init (setq highlight-indent-guides-method 'character
+                highlight-indent-guides-responsive 'top)
+    :config
+    ;; Don't display indentations while editing with `company'
+    (with-eval-after-load 'company
+      (add-hook 'company-completion-started-hook
+                (lambda (&rest _)
+                  "Trun off indentation highlighting."
+                  (when highlight-indent-guides-mode
+                    (highlight-indent-guides-mode -1))))
+      (add-hook 'company-after-completion-hook
+                (lambda (&rest _)
+                  "Trun on indentation highlighting."
+                  (when (and (derived-mode-p 'prog-mode)
+                             (not highlight-indent-guides-mode))
+                    (highlight-indent-guides-mode 1)))))
+
+    ;; Don't display first level of indentation
+    (defun my-indent-guides-for-all-but-first-column (level responsive display)
+      (unless (< level 1)
+        (highlight-indent-guides--highlighter-default level responsive display)))
+    (setq highlight-indent-guides-highlighter-function
+          #'my-indent-guides-for-all-but-first-column)
+#+END_SRC
+
+Don't display indentation in swiper.
+
+#+BEGIN_SRC emacs-lisp
+    (with-eval-after-load 'ivy
+      (defun my-ivy-cleanup-indentation (str)
+        "Clean up indentation highlighting in ivy minibuffer."
+        (let ((pos 0)
+              (next 0)
+              (limit (length str))
+              (prop 'highlight-indent-guides-prop))
+          (while (and pos next)
+            (setq next (text-property-not-all pos limit prop nil str))
+            (when next
+              (setq pos (text-property-any next limit prop nil str))
+              (ignore-errors
+                (remove-text-properties next pos '(display nil face nil) str))))))
+      (advice-add #'ivy-cleanup-string :after #'my-ivy-cleanup-indentation))))
+#+END_SRC
 ** Modeline
 #+BEGIN_SRC emacs-lisp
 (use-package doom-modeline
@@ -191,8 +246,7 @@ Common-lisp extensions for Emacs.
   (diminish 'text-scale-mode)
   (diminish 'beacon-mode)
   (diminish 'auto-fill-function)
-  (diminish 'which-key-mode)
-  (diminish 'modalka-mode "normal"))
+  (diminish 'which-key-mode))
 #+END_SRC
 ** Icons
 #+BEGIN_SRC emacs-lisp
@@ -266,6 +320,31 @@ Distraction-free mode.
   :config
   (global-flycheck-mode t))
 #+END_SRC
+** Frames
+#+BEGIN_SRC emacs-lisp
+(use-package frame
+  :ensure nil
+  :after general
+  :general
+  ;; Disable suspending
+  ("C-z" . nil)
+  ("C-z C-z" . nil))
+#+END_SRC
+** Windows
+#+BEGIN_SRC emacs-lisp
+(use-package ace-window
+  :straight t)
+#+END_SRC
+
+* Navigation
+** Avy
+#+BEGIN_SRC emacs-lisp
+(use-package avy
+  :straight t
+  :custom
+  (avy-style 'words))
+#+END_SRC
+
 * Keyboard & Shortcuts
 ** General
 General.el is a cool interface for making key bindings.
@@ -288,265 +367,43 @@ Hydra integration with use-package.
 (use-package use-package-hydra
   :straight t)
 #+END_SRC
-** Key-chord
-#+BEGIN_SRC emacs-lisp :tangle no
-(use-package key-chord
-  :straight t
-  :custom
-  (key-chord-two-keys-delay '0.01)
-  (key-chord-one-key-delay '0.15)
-  :hook
-  (after-init . key-chord-global-mode))
-
-;(key-chord-define modalka-mode-map "dj" 'delete-backward-char)
-;(key-chord-define modalka-mode-map "dl" 'delete-char)
-;(key-chord-define modalka-mode-map "du" 'backward-kill-word)
-;(key-chord-define modalka-mode-map "do" 'kill-word)
-;(key-chord-define modalka-mode-map "dr" 'kill-region)
-;(key-chord-define modalka-mode-map "dd" 'kill-whole-line)
-;(key-chord-define modalka-mode-map "dm" 'avy-kill-whole-line)
-;(key-chord-define modalka-mode-map "d;" 'kill-line)
-;(key-chord-define modalka-mode-map "dh" 'reverse-kill-line)
-;(key-chord-define modalka-mode-map "dt" 'zap-to-char)
-
-;(key-chord-define modalka-mode-map "tl" 'counsel-yank-pop)
-
-
-;(key-chord-define modalka-mode-map "ei" 'move-text-up)
-;(key-chord-define modalka-mode-map "ek" 'move-text-down)
-
-;(key-chord-define modalka-mode-map "qo" 'capitalize-word)
-;(key-chord-define modalka-mode-map "qr" 'capitalize-region)
-
-;(key-chord-define modalka-mode-map "xk" 'kill-buffer)
-;(key-chord-define modalka-mode-map "xw" 'kill-buffer-and-window)
-;(key-chord-define modalka-mode-map "xm" 'buffer-menu)
-;(key-chord-define modalka-mode-map "xj" 'previous-buffer)
-;(key-chord-define modalka-mode-map "xl" 'next-buffer)
-;(key-chord-define modalka-mode-map "xs" 'switch-to-buffer)
-;(key-chord-define modalka-mode-map "xk" 'kill-buffer)
-
-;(key-chord-define modalka-mode-map "rr" 'set-mark-command)
-;(key-chord-define modalka-mode-map "rj" 'back-button-local-forward)
-;(key-chord-define modalka-mode-map "rl" 'back-button-local-backward)
-
-#+END_SRC
-** Avy
+** Evil
 #+BEGIN_SRC emacs-lisp
-(use-package avy
+(use-package evil
   :straight t
-  :hydra (hydra-avy (:color blue)
-  "avy"
-  ("f" avy-goto-char "goto-char")
-  ("k" avy-goto-char-2-below "goto-char-2-below")
-  ("i" avy-goto-char-2-above "goto-char-2-above")
-  ("l" avy-goto-char-in-line "goto-char-in-line")
-  ("o" avy-goto-word-1 "goto-word-1"))
-  :custom
-  (avy-style 'words))
+  :preface
+  (defun save-and-kill-this-buffer ()
+    (interactive)
+    (save-buffer)
+    (kill-this-buffer))
+  :config
+  (with-eval-after-load 'evil-maps ; avoid conflict with company tooltip selection
+    (define-key evil-insert-state-map (kbd "C-n") nil)
+    (define-key evil-insert-state-map (kbd "C-p") nil))
+  (evil-ex-define-cmd "q" #'kill-this-buffer)
+  (evil-ex-define-cmd "wq" #'save-and-kill-this-buffer)
+  (undo-tree-mode nil)
+  (evil-mode t))
 #+END_SRC
-** Modal editing
-Modal editing is more efficient and ergonomical way to edit text.
-The package I use for implementing modal editing to my config is
-called Modalka.
-*** Editing hydras
+
+*** Evil collection
 #+BEGIN_SRC emacs-lisp
-(defhydra hydra-kill (:color red)
-    "Kill"
-    ("j" delete-backward-char "Backward Char")
-    ("l" delete-char "Char")
-    ("u" backward-kill-word "Backward Word")
-    ("o" kill-word "Word")
-    ("r" kill-region "Region" :color blue)
-    ("d" kill-whole-line "Line")
-    ("m" avy-kill-whole-line "avy-kill-whole-line")
-    (";" kill-line "To the End of a Line")
-    ("h" reverse-kill-line "To the Beginning of a Line")
-    ("t" zap-to-char "To Char" :color blue)
-    ("g" nil "quit"))
-
-(defhydra hydra-yank ()
-  "yank"
-  ("y" yank nil)
-  ("t" yank-pop nil)
-  ("k" (yank-pop 1) "next")
-  ("i" (yank-pop -1) "prev")
-  ("l" counsel-yank-pop "list" :color blue)
-  ("g" nil "quit"))
-
-(use-package move-text
-  :straight t
-  :hydra hydra-move-text ()
-  "Move text"
-  ("i" move-text-up "up")
-  ("k" move-text-down "down")
-  ("g" nil "quit"))
-
-(defhydra hydra-capitalize ()
-  "capitalize"
-  ("o" capitalize-word "word")
-  ("r" capitalize-region "region")
-  ("g" quit))
-
-(defhydra hydra-comment ()
-  ("b" comment-box "box")
-  ("g" quit))
-
-(defhydra hydra-buffer (:color blue)
-    ("k" kill-buffer "kill-buffer")
-    ("w" kill-buffer-and-window "kill-buffer-and-window")
-    ("m" buffer-menu "buffer-menu")
-    ("j" previous-buffer "previous-buffer" :color red)
-    ("l" next-buffer "next-buffer" :color red)
-    ("s" switch-to-buffer "switch-buffer")
-    ("g" nil "quit"))
-
-(use-package back-button
-  :straight t
-  :after modalka
-  :hydra (hydra-mark-ring ()
-  ("r" set-mark-command "set-mark" :color blue)
-  ("j" back-button-local-forward "local-forward")
-  ("l" back-button-local-backward "local-backward")
-  ("g" nil "quit")))
-
-(defhydra hydra-eval (:color blue)
-    "eval"
-    ("d" eval-defun "defun")
-    ("b" eval-buffer "buffer")
-    ("r" eval-region "region")
-    ("s" eval-last-sexp "last-sexp")
-    ("e" eval-expression "expression")
-    ("g" nil "quit"))
-
-(defhydra hydra-package (:color blue)
-    ("i" package-install "install")
-    ("r" package-refresh-contents "refresh-contents" :color red)
-    ("t" try "try")
-    ("d" package-delete "delete")
-    ("l" package-list-packages "list-packages")
-    ("g" nil "quit"))
-
-(defhydra hydra-help (:color blue)
-    ("m" man "man")
-    ("i" info "info")
-    ("?" help-for-help "help-for-help")
-    ("n" view-emacs-news "news")
-    ("C" describe-coding-system "describe-coding-system")
-    ("I" describe-input-method "describe-input-method")
-    ("L" describe-language-environment "describe-language-environment")
-    ("P" describe-package "describe-package")
-    ("b" describe-bindings "describe-bindings")
-    ("c" describe-key-briefly "describe-key-briefly")
-    ("f" describe-function "describe-function")
-    ("g" describe-gnu-project "describe-gnu-project")
-    ("k" describe-key "describe-key")
-    ("m" describe-mode "describe-mode")
-    ("o" describe-symbol "describe-symbol")
-    ("v" describe-variable "describe-variable")
-    ("g" nil "quit"))
-
-(defhydra hydra-zoom ()
-    "zoom"
-    ("i" text-scale-increase "in")
-    ("k" text-scale-decrease "out")
-    ("g" quit))
-
-(defhydra hydra-space-commands (:color blue)
-    ("s" save-buffer "save-buffer" :color red)
-    ("f" find-file "find-file" :color red)
-    ("Q" kill-emacs "kill-emacs")
-    ("d" dired "dired")
-    ("a" org-agenda "org-agenda")
-    ("p" hydra-package/body "package")
-    ("z" hydra-zoom/body "zoom")
-    ("h" hydra-help/body "help")
-    ("i" beginning-of-buffer "beginning")
-    ("k" end-of-buffer "end-of-buffer")
-    ("u" scroll-down "scroll-up")
-    ("o" scroll-up "scroll-down")
-    ("e" hydra-eval/body "eval")
-    ("g" nil "quit"))
-
-;; These functions will be needed soon.
-(defun enable-modalka-mode ()
- (interactive)
- (modalka-mode t))
-
-(defun reverse-kill-line ()
-  (interactive)
-  (kill-line 0))
-
-(use-package modalka
-  :straight t
-  :general
-  ("C-;" 'enable-modalka-mode)
-  ("<escape>" 'enable-modalka-mode) ; enable insert-mode
-  ('modalka-mode-map
-  "q" 'hydra-capitalize/body
-  "w" 'copy-region-as-kill
-  "e" 'hydra-move-text/body
-  "r" 'hydra-mark-ring/body
-  "t" 'hydra-yank/yank
-  "y" 'undo
-  "u" 'left-word
-  "i" 'previous-line
-  "o" 'right-word
-  "p" 'modalka-mode ; enable insert-mode
-  "a" 'execute-extended-command
-  "s" 'isearch-forward
-  "d" 'hydra-kill/body
-  "f" 'hydra-avy/body
-  "g" 'keyboard-quit
-  "h" 'beginning-of-line
-  "j" 'backward-char
-  "k" 'next-line
-  "l" 'forward-char
-  ";" 'end-of-line
-  "x" 'hydra-buffer/body
-  "m" 'avy-goto-line
-  "n" 'universal-argument
-  "(" 'backward-sexp
-  ")" 'forward-sexp
-  "SPC" 'hydra-space-commands/body)
-  :custom
-  (cursor-type '(bar . 1))
-  (modalka-cursor-type 'box)
-  :hook
-  (after-init . modalka-global-mode))
+(evil-want-keybinding 'nil)
+(use-package evil-collection
+  :straight t)
 #+END_SRC
-** Frame Manipulation
+** Which key?
+A nice little tool to remind you about what keys do you want to press.
+
 #+BEGIN_SRC emacs-lisp
-(use-package frame
-  :ensure nil
-  :after modalka
-  :hydra (hydra-frame ()
-  ("o" other-frame "other-frame")
-  ("3" make-frame-command "make-frame-command")
-  ("2" delete-other-frames "delete-other-frames")
-  ("1" delete-frame "delete-frame"))
-  :general
-  ;; Disable suspending
-  ("C-z" . nil)
-  ("C-z C-z" . nil)
-  (:keymaps 'modalka-mode-map
-  "c" 'hydra-frame/body))
-#+END_SRC
-** Window manipulation
-#+BEGIN_SRC emacs-lisp
-(use-package ace-window
+(use-package which-key
   :straight t
-  :after modalka
-  :hydra (hydra-window ()
-  ("z" ace-window "select-window" :color blue)
-  ("3" split-window-right "split-window-right")
-  ("2" delete-other-windows "delete-other-windows")
-  ("1" delete-window "delete-window")
-  ("g" nil "quit"))
-  :general
-  (:keymaps 'modalka-mode-map
-  "z" 'hydra-window/body))
+  :config
+  (which-key-mode t)
+  (setq which-key-idle-delay 0.4
+        which-key-idle-secondary-delay 0.4))
 #+END_SRC
+
 * Search
 ** Ripgrep
 #+BEGIN_SRC emacs-lisp
@@ -693,17 +550,6 @@ Helpful provides better Emacs "help" buffer
 #+BEGIN_SRC emacs-lisp
 (use-package helpful
   :straight t)
-#+END_SRC
-** Which key?
-A nice little tool to remind you about what keys do you want to press.
-
-#+BEGIN_SRC emacs-lisp
-(use-package which-key
-  :straight t
-  :config
-  (which-key-mode t)
-  (setq which-key-idle-delay 0.4
-        which-key-idle-secondary-delay 0.4))
 #+END_SRC
 * Term & Shell
 ** Vterm
